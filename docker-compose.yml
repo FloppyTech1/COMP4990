@@ -1,7 +1,9 @@
 version: '3.3'
 services:
   www:
-    image: php:8.3-apache
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - "./:/var/www/html" # sync project dir with container web dir
     ports:
@@ -15,7 +17,7 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      - "./db:/docker-entrypoint-initdb.d"  # sync persistent sql files with container NOT WORKING
+      - "./db:/docker-entrypoint-initdb.d"  # sync persistent sql files with container
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
