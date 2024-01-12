@@ -1,13 +1,20 @@
 <?php
 
-// Include any .php?
-// require_once 'includes/name.php';
+    // Include any .php?
+    // require_once 'includes/name.php';
 
-// Login
-//if ($_SERVER["REQUEST_METHOD"] == "POST" )
+    require_once 'includes/db_function.php';    # Regular query that might be use
 
-session_start();
+    // Login
+    //if ($_SERVER["REQUEST_METHOD"] == "POST" )
 
-echo "Hello World!";
+    echo "Hello World!";
+
+    // Test db_function getAllDoctors
+    $doctors = getAllDoctors();
+    foreach ($doctors as $doctor) {
+        echo "Doctor Name: {$doctor['DoctorName']}, 
+        Specialization: {$doctor['DoctorSpecialization']}<br>";
+    }
 
 ?>
