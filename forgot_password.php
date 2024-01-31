@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-$hostname = "localhost";
-$username = "root";
-$password = "MyNewPass";
-$database_name = "login_db";
+$hostname = "localhost";  
+$username = "root";  
+$password = "MyNewPass";  
+$database_name = "login_db"; 
 
 $db = mysqli_connect($hostname, $username, $password, $database_name);
 
@@ -12,29 +12,22 @@ if (!$db) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+$message = "";
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
-    $password = $_POST['password'];
+    $id = $_POST['id'];
     $user_type = $_POST['user_type'];
+    $new_password = $_POST['new_password'];
 
-    $query = "SELECT * FROM users WHERE username = '$username' AND user_type = '$user_type'";
+    $query = "UPDATE users SET password = '$new_password' WHERE username = '$username' AND id = '$id' AND user_type = '$user_type'";
     $result = mysqli_query($db, $query);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $user = mysqli_fetch_assoc($result);
-
-        if ($password == $user['password']) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_type'] = $user['user_type'];    
-
-            if ($user_type == 'Employee') {
-                header('Location: employee_dashboard.php');
-            } elseif ($user_type == 'Patient') {
-                header('Location: patient_dashboard.php');
-            }
-            exit(); 
-        }
-    }
+    
+    if ($result && mysqli_affected_rows($db) > 0) {
+        $message = "Password updated successfully.";
+    } else {
+        $message = "Invalid username, id, or user type.";
+    }    
 }
 ?>
 
@@ -43,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Reset Password</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -58,21 +52,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     .container {
       max-width: 400px;
-      padding: 40px;
+      padding: 60px;
+      padding-top: 0px;
+      padding-bottom: 0px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .error-message {
-      text-align: center;
-      color: #ff0000;
-      margin-bottom: 20px;
+    .message {
+      text-align: center; 
+      color: #333; 
+      margin-bottom: 20px; 
     }
 
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #555;
+      margin-bottom: 40px;
     }
 
     label {
@@ -119,13 +121,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     .form-links {
       text-align: center;
-      margin-left: -85px;
-      margin-top: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
       color: #777;
     }
 
     .form-links a {
-      margin: 0 45px;
+      margin: 0 10px;
       color: #007bff;
       text-decoration: none;
       transition: color 0.3s ease;
@@ -138,35 +140,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
   <div class="container">
-  <div class="error-message">
-      <?php
-      if ($_SERVER['REQUEST_METHOD'] == 'POST' && (empty($result) || mysqli_num_rows($result) == 0)) {
-          echo "Invalid username or password.";
-      }
-      ?>
-    </div>
+  <div class="message"><?php echo $message; ?></div>
     <h1>Elysian Medical Hospital</h1>
-    <h2>Login Portal</h2>
-    <form method="post" action="index.php">
+    <h2>Reset Password</h2>
+    <form method="post" action="forgot_password.php">
       <label for="username">Username:</label>
-      <input type="text" name="username" required />
+      <input type="text" name="username" required /><br />
 
-      <label for="password">Password:</label>
-      <input type="password" name="password" required />
+      <label for="id">ID:</label>
+      <input type="text" name="id" required /><br />
 
-      <label for="user_type">Login as:</label>
+      <label for="user_type">User Type:</label>
       <select name="user_type">
         <option value="Employee">Employee</option>
         <option value="Patient">Patient</option>
-      </select>
-      
-      <input type="submit" value="Login" />
-      <div class="form-links">
-        <a href="#"><a href="forgot_password.php">Forgot Password?</a></a>
-      </div>
+      </select><br />
+
+      <label for="new_password">New Password:</label>
+      <input type="password" name="new_password" required /><br />
+
+      <input type="submit" value="Reset Password" />
     </form>
+    <div class="form-links">
+  <a href="index.php">Back to Login</a>
+</div>
   </div>
 </body>
 </html>
-
-
