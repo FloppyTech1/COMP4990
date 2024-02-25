@@ -1,41 +1,51 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
     header('Location: login.php');
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-$query = "SELECT PatientName FROM Patient WHERE PatientID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
+}
 
-if ($result && $row = $result->fetch_assoc()) {
-    $patientName = $row['PatientName'];
+// Query to retrieve patient name from the main_db
+$query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result_main_db = $mysqli_main_db->query($query_main_db);
+
+if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
+    $patientName = $row_main_db['FullName'];
 } else {
     $patientName = "Patient Not Found";
 }
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
 $patient_id = $_SESSION['user_id'];
 
-// Query to retrieve active appointments for the patient
-$currentAppointmentsQuery = "SELECT * FROM Appointment WHERE PatientID = $patient_id AND Status = 'Confirmed'";
-$currentAppointmentsResult = $mysqli->query($currentAppointmentsQuery);
+// Query to retrieve active appointments for the patient from second_db
+$currentAppointmentsQuery = "SELECT * FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
+$currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 
-// Query to retrieve past appointments for the patient from AppointmentDim table
-$pastAppointmentsQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
-$pastAppointmentsResult = $mysqli->query($pastAppointmentsQuery);
+$pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
+$pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentQuery);
 
-// Calculate counts
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
 $numPastAppointments = $pastAppointmentsResult->num_rows;
 
-$mysqli->close();
+// Close both connections when done
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +53,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="view_patient.css">
+    <link rel="stylesheet" href="old.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Your Appointments</title>
 </head>
@@ -84,12 +94,12 @@ $mysqli->close();
     <div class="data-container">
         <?php
         if ($numCurrentAppointments > 0) {
-            while ($currentAppointmentRow = $currentAppointmentsResult->fetch_assoc()) {
+            while ($currentAppointmentsRow = $currentAppointmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
-                echo '<h4>' . $currentAppointmentRow['Description'] . '</h4>';
-                echo '<p>Date: ' . $currentAppointmentRow['AppointmentDate'] . '</p>';
-                echo '<p>Status: ' . $currentAppointmentRow['Status'] . '</p>';
-                echo '<p>Room: ' . $currentAppointmentRow['Room'] . '</p>';
+                echo '<h4>' . $currentAppointmentsRow['Description'] . '</h4>';
+                echo '<p>Date: ' . $currentAppointmentsRow['AppointmentDate'] . '</p>';
+                echo '<p>Status: ' . $currentAppointmentsRow['Status'] . '</p>';
+                echo '<p>Room: ' . $currentAppointmentsRow['Room'] . '</p>';
                 echo '</div>';
             }
         } else {
@@ -102,7 +112,7 @@ $mysqli->close();
     <div class="data-container">
         <?php
         if ($numPastAppointments > 0) {
-            while ($pastAppointmentRow = $pastAppointmentsResult->fetch_assoc()) {
+            while ($pastAppointmentsRow = $pastAppointmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
                 echo '<h4>' . $pastAppointmentRow['Description'] . '</h4>';
                 echo '<p>Date: ' . $pastAppointmentRow['AppointmentDate'] . '</p>';
@@ -139,6 +149,15 @@ $mysqli->close();
         });
     });
 </script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-link"><i class="material-icons">info</i><a href="about_us.php">About Us</a></div>
+        <div class="footer-link"><i class="material-icons">mail</i><a href="contact_us.php">Contact Us</a></div>
+        <div class="footer-link"><i class="material-icons">help</i><a href="faq.php">FAQ</a></div>
+        <div class="footer-link"><i class="material-icons">build</i><a href="services.php">Services</a></div>
+    </div>
+</footer>
 
 </body>
 </html>

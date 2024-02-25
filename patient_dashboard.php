@@ -11,11 +11,11 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-$query = "SELECT PatientName FROM Patient WHERE PatientID = " . $_SESSION['user_id'];
+$query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
 $result = $mysqli->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
-    $patientName = $row['PatientName'];
+    $patientName = $row['FullName'];
 } else {
     $patientName = "Patient Not Found";
 }
@@ -28,7 +28,7 @@ $result->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="employee.css">
+    <link rel="stylesheet" href="new.css">
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -64,7 +64,7 @@ $result->close();
     <h2>My Appointments</h2>
     <div class="data-container">
         <?php
-        $appointmentQuery = "SELECT * FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
+        $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
         $appointmentResult = $mysqli->query($appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
@@ -84,13 +84,13 @@ $result->close();
     <h2>My Treatments</h2>
     <div class="data-container">
         <?php
-        $treatmentQuery = "SELECT * FROM Treat WHERE PatientID = " . $_SESSION['user_id'];
+        $treatmentQuery = "SELECT Treat.* FROM Treat WHERE PatientID = " . $_SESSION['user_id'];
         $treatmentResult = $mysqli->query($treatmentQuery);
 
         while ($treatmentRow = $treatmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
-            echo '<h3>Treatment for Patient ' . $treatmentRow['PatientID'] . '</h3>';
-            echo '<p>Treatment: ' . $treatmentRow['Treatment'] . '</p>';
+            echo '<h3>Treatment: ' . $treatmentRow['Treatment'] . '</h3>';
+            echo '<p>Status: ' . $treatmentRow['Status'] . '</p>';
             echo '</div>';
         }
 
@@ -98,6 +98,7 @@ $result->close();
         ?>
     </div>
 </section>
+
 
 <section>
     <h2>My Billing Information</h2>
@@ -139,6 +140,15 @@ $result->close();
         ?>
     </div>
 </section>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-link"><i class="material-icons">info</i><a href="about_us.php">About Us</a></div>
+        <div class="footer-link"><i class="material-icons">mail</i><a href="contact_us.php">Contact Us</a></div>
+        <div class="footer-link"><i class="material-icons">help</i><a href="faq.php">FAQ</a></div>
+        <div class="footer-link"><i class="material-icons">build</i><a href="services.php">Services</a></div>
+    </div>
+</footer>
 
 </body>
 </html>

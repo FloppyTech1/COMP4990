@@ -4,7 +4,7 @@ session_start();
 $hostname = "localhost";
 $username = "root";
 $password = "MyNewPass";
-$database_name = "login_db";
+$database_name = "main_db";
 
 $db = mysqli_connect($hostname, $username, $password, $database_name);
 
@@ -13,24 +13,26 @@ if (!$db) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $user_type = $_POST['user_type'];
+    $input_username = $_POST['username'];
+    $input_password = $_POST['password'];
+    $input_user_type = $_POST['user_type'];
 
-    $query = "SELECT * FROM users WHERE username = '$username' AND user_type = '$user_type'";
+    $query = "SELECT * FROM User WHERE username = '$input_username' AND user_type = '$input_user_type'";
     $result = mysqli_query($db, $query);
 
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
 
-        if ($password == $user['password']) {
-            $_SESSION['user_id'] = $user['id'];
+        if ($input_password == $user['Password']) {
+            $_SESSION['user_id'] = $user['UserID'];
             $_SESSION['user_type'] = $user['user_type'];    
 
-            if ($user_type == 'Employee') {
+            if ($input_user_type == 'Employee') {
                 header('Location: employee_dashboard.php');
-            } elseif ($user_type == 'Patient') {
+                exit();
+            } elseif ($input_user_type == 'Patient') {
                 header('Location: patient_dashboard.php');
+                exit();
             }
             exit(); 
         }

@@ -1,14 +1,33 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
     header('Location: login.php');
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
+}
+
+// Query to retrieve patient name from the main_db
+$query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result_main_db = $mysqli_main_db->query($query_main_db);
+
+if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
+    $patientName = $row_main_db['FullName'];
+} else {
+    $patientName = "Patient Not Found";
+}
+
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
@@ -16,17 +35,18 @@ $patient_id = $_SESSION['user_id'];
 
 // Query to retrieve active bills for the patient
 $currentBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patient_id AND PaymentStatus = 'Pending'";
-$currentBillsResult = $mysqli->query($currentBillsQuery);
+$currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
 
 // Query to retrieve past bills for the patient
-$pastBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
-$pastBillsResult = $mysqli->query($pastBillsQuery);
+$pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
+$pastBillsResult = $mysqli_dw_db->query($pastBillsQuery);
 
 // Calculate counts
 $numCurrentBills = $currentBillsResult->num_rows;
 $numPastBills = $pastBillsResult->num_rows;
 
-$mysqli->close();
+$mysqli_dw_db->close();
+$mysqli_main_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +54,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="view_patient.css">
+    <link rel="stylesheet" href="old.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Your Billing</title>
 </head>
@@ -51,7 +71,7 @@ $mysqli->close();
         <div class="welcome-text">Welcome,</div>
         <div class="dropdown">
             <!-- Display patient name or any other relevant information -->
-            <div class="welcome-text"><?php echo "Patient Name"; ?>!</div>
+            <div class="welcome-text"><?php echo $patientName; ?>!</div>
         </div>
     </div>
     <div class="nav-links">
@@ -135,6 +155,15 @@ $mysqli->close();
         });
     });
 </script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-link"><i class="material-icons">info</i><a href="about_us.php">About Us</a></div>
+        <div class="footer-link"><i class="material-icons">mail</i><a href="contact_us.php">Contact Us</a></div>
+        <div class="footer-link"><i class="material-icons">help</i><a href="faq.php">FAQ</a></div>
+        <div class="footer-link"><i class="material-icons">build</i><a href="services.php">Services</a></div>
+    </div>
+</footer>
 
 </body>
 </html>

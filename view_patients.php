@@ -5,36 +5,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
 }
 
-$query = "SELECT DoctorName FROM Doctor WHERE doctorID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
+
+$query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
-    $doctorName = $row['DoctorName'];
+    $doctorName = $row['FullName'];
 } else {
     $doctorName = "Doctor Not Found";
 }
 
 $result->close();
 
-// Retrieve current patients from the Patient table
-$currentPatientsQuery = "SELECT * FROM Patient";
-$currentPatientsResult = $mysqli->query($currentPatientsQuery);
+$currentPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionDate, P.DischargeDate
+    FROM Patient P
+    JOIN User U ON P.UserID = U.UserID
+    JOIN Treat T ON P.PatientID = T.PatientID
+    WHERE T.DoctorID = {$_SESSION['user_id']}";
+$currentPatientsResult = $mysqli_main_db->query($currentPatientsQuery);
 
-// Retrieve past patients from the PatientDim table
-$pastPatientsQuery = "SELECT * FROM PatientDim";
-$pastPatientsResult = $mysqli->query($pastPatientsQuery);
+$pastPatientsQuery = "";
+$pastPatientsResult = $mysqli_dw_db->query($pastPatientsQuery);
 
-// Calculate the number of current and past patients
 $numCurrentPatients = $currentPatientsResult->num_rows;
 $numPastPatients = $pastPatientsResult->num_rows;
 
-$mysqli->close();
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +52,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="view_patient.css">
+    <link rel="stylesheet" href="old.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>View Patients</title>
 </head>
@@ -64,8 +74,8 @@ $mysqli->close();
         <div class="nav-links">
             <a class="nav-link" href="employee_dashboard.php">Home <i class="material-icons">home</i></a>
             <a class="nav-link" href="view_patients.php">Patients <i class="material-icons">people</i></a>
-            <a class="nav-link" href="view_appointments.php">Appointments <i class="material-icons">event</i></a>
-            <a class="nav-link" href="view_treatments.php">Treatments <i class="material-icons">healing</i></a>
+            <a class="nav-link" href="view_appointments.php">Appointments <i class="material-icons">date_range</i></a>
+            <a class="nav-link" href="view_treatments.php">Treatments <i class="material-icons">vaccines</i></a>
             <a class="nav-link" href="logout.php">Logout <i class="material-icons">exit_to_app</i></a>
 </div>
 
@@ -86,6 +96,7 @@ $mysqli->close();
         while ($currentPatientRow = $currentPatientsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>' . $currentPatientRow['PatientName'] . '</h4>';
+            echo '<p>Patient ID: ' . $currentPatientRow['PatientID'] . '</p>';
             echo '<p>Disease: ' . $currentPatientRow['Disease'] . '</p>';
             echo '<p>Admission Date: ' . $currentPatientRow['AdmissionDate'] . '</p>';
             echo '</div>';
@@ -131,6 +142,15 @@ $mysqli->close();
         });
     });
 </script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-link"><i class="material-icons">info</i><a href="about_us.php">About Us</a></div>
+        <div class="footer-link"><i class="material-icons">mail</i><a href="contact_us.php">Contact Us</a></div>
+        <div class="footer-link"><i class="material-icons">help</i><a href="faq.php">FAQ</a></div>
+        <div class="footer-link"><i class="material-icons">build</i><a href="services.php">Services</a></div>
+    </div>
+</footer>
 
 </body>
 </html>

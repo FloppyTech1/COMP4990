@@ -1,32 +1,58 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
     header('Location: login.php');
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
+}
+
+// Query to retrieve patient name from the main_db
+$query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result_main_db = $mysqli_main_db->query($query_main_db);
+
+if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
+    $patientName = $row_main_db['FullName'];
+} else {
+    $patientName = "Patient Not Found";
+}
+
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
 $patient_id = $_SESSION['user_id'];
 
-// Query to retrieve active treatments for the patient
-$currentTreatmentsQuery = "SELECT * FROM Treat WHERE PatientID = $patient_id";
-$currentTreatmentsResult = $mysqli->query($currentTreatmentsQuery);
+$currentTreatmentsQuery = "SELECT Treat.* FROM Treat WHERE Treat.PatientID = $patient_id";
+$currentTreatmentsResult = $mysqli_main_db->query($currentTreatmentsQuery);
 
-// Query to retrieve past treatments for the patient
-$pastTreatmentsQuery = "SELECT * FROM TreatmentFact WHERE PatientID = $patient_id";
-$pastTreatmentsResult = $mysqli->query($pastTreatmentsQuery);
+$pastTreatmentsQuery = "SELECT TreatDim.* FROM TreatDim WHERE TreatDim.PatientID = $patient_id";
+$pastTreatmentsResult = $mysqli_dw_db->query($pastTreatmentsQuery);
 
 // Calculate counts
 $numCurrentTreatments = $currentTreatmentsResult->num_rows;
 $numPastTreatments = $pastTreatmentsResult->num_rows;
 
-$mysqli->close();
+$query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $patientName = $row['FullName'];
+} else {
+    $patientName = "Patient Not Found";
+}
+
+$mysqli_main_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +60,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="view_patient.css">
+    <link rel="stylesheet" href="old.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Your Treatments</title>
 </head>
@@ -51,7 +77,7 @@ $mysqli->close();
         <div class="welcome-text">Welcome,</div>
         <div class="dropdown">
             <!-- Display patient name or any other relevant information -->
-            <div class="welcome-text"><?php echo "Patient Name"; ?>!</div>
+            <div class="welcome-text"><?php echo $patientName; ?>!</div>
         </div>
     </div>
     <div class="nav-links">
@@ -81,9 +107,7 @@ $mysqli->close();
             while ($currentTreatmentRow = $currentTreatmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
                 echo '<h4>' . $currentTreatmentRow['Treatment'] . '</h4>';
-                echo '<p>Doctor: ' . $currentTreatmentRow['DoctorID'] . '</p>';
                 echo '<p>Status: Active</p>';
-                // Add more details as needed
                 echo '</div>';
             }
         } else {
@@ -99,9 +123,7 @@ $mysqli->close();
             while ($pastTreatmentRow = $pastTreatmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
                 echo '<h4>' . $pastTreatmentRow['TreatmentDescription'] . '</h4>';
-                echo '<p>Doctor: ' . $pastTreatmentRow['DoctorID'] . '</p>';
                 echo '<p>Status: Completed</p>';
-                // Add more details as needed
                 echo '</div>';
             }
         } else {
@@ -133,6 +155,15 @@ $mysqli->close();
         });
     });
 </script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-link"><i class="material-icons">info</i><a href="about_us.php">About Us</a></div>
+        <div class="footer-link"><i class="material-icons">mail</i><a href="contact_us.php">Contact Us</a></div>
+        <div class="footer-link"><i class="material-icons">help</i><a href="faq.php">FAQ</a></div>
+        <div class="footer-link"><i class="material-icons">build</i><a href="services.php">Services</a></div>
+    </div>
+</footer>
 
 </body>
 </html>
