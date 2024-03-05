@@ -45,6 +45,13 @@ if (isset($_POST['date_filter'])) {
 $currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 
 $pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $pastAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentQuery);
 
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
@@ -125,22 +132,22 @@ $mysqli_dw_db->close();
     </div>
 
     <h2>Past Appointments</h2>
-    <div class="data-container">
-        <?php
-        if ($numPastAppointments > 0) {
-            while ($pastAppointmentsRow = $pastAppointmentsResult->fetch_assoc()) {
-                echo '<div class="data-box">';
-                echo '<h4>' . $pastAppointmentRow['Description'] . '</h4>';
-                echo '<p>Date: ' . $pastAppointmentRow['AppointmentDate'] . '</p>';
-                echo '<p>Status: ' . $pastAppointmentRow['Status'] . '</p>';
-                echo '<p>Room: ' . $pastAppointmentRow['Room'] . '</p>';
-                echo '</div>';
-            }
-        } else {
-            echo '<p>No past appointments found.</p>';
+<div class="data-container">
+    <?php
+    if ($numPastAppointments > 0) {
+        while ($pastAppointmentsRow = $pastAppointmentsResult->fetch_assoc()) {
+            echo '<div class="data-box">';
+            echo '<h4>' . $pastAppointmentsRow['Description'] . '</h4>';
+            echo '<p>Date: ' . $pastAppointmentsRow['AppointmentDate'] . '</p>';
+            echo '<p>Status: ' . $pastAppointmentsRow['Status'] . '</p>';
+            echo '<p>Room: ' . $pastAppointmentsRow['Room'] . '</p>';
+            echo '</div>';
         }
-        ?>
-    </div>
+    } else {
+        echo '<p>No past appointments found.</p>';
+    }
+    ?>
+</div>
 </section>
 
 <script>

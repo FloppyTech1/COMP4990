@@ -107,7 +107,7 @@ $mysqli_main_db->close();
             while ($currentTreatmentRow = $currentTreatmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
                 echo '<h4>' . $currentTreatmentRow['Treatment'] . '</h4>';
-                echo '<p>Status: Active</p>';
+                echo '<p>Status: ' . $currentTreatmentRow['Status'] . '</p>';
                 echo '</div>';
             }
         } else {
@@ -122,8 +122,8 @@ $mysqli_main_db->close();
         if ($numPastTreatments > 0) {
             while ($pastTreatmentRow = $pastTreatmentsResult->fetch_assoc()) {
                 echo '<div class="data-box">';
-                echo '<h4>' . $pastTreatmentRow['TreatmentDescription'] . '</h4>';
-                echo '<p>Status: Completed</p>';
+                echo '<h4>' . $pastTreatmentRow['Treatment'] . '</h4>';
+                echo '<p>Status: ' . $pastTreatmentRow['Status'] . '</p>';
                 echo '</div>';
             }
         } else {

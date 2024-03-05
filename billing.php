@@ -35,10 +35,24 @@ $patient_id = $_SESSION['user_id'];
 
 // Query to retrieve active bills for the patient
 $currentBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patient_id AND PaymentStatus = 'Pending'";
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $currentBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
 
 // Query to retrieve past bills for the patient
 $pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $pastBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $pastBillsResult = $mysqli_dw_db->query($pastBillsQuery);
 
 // Calculate counts
@@ -84,6 +98,15 @@ $mysqli_main_db->close();
         <a class="nav-link" href="logout.php">Logout <i class="material-icons">exit_to_app</i></a>
     </div>
 </nav>
+
+<br>
+<form class="date-filter-form" method="post" action="">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" class="date-input">
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date" class="date-input">
+    <button type="submit" name="date_filter" class="filter-button">Filter</button>
+</form>
 
 <section>
     <h2>Your Billing</h2>

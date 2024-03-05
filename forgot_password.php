@@ -4,7 +4,7 @@ session_start();
 $hostname = "localhost";  
 $username = "root";  
 $password = "MyNewPass";  
-$database_name = "login_db"; 
+$database_name = "main_db"; 
 
 $db = mysqli_connect($hostname, $username, $password, $database_name);
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_type = $_POST['user_type'];
     $new_password = $_POST['new_password'];
 
-    $query = "UPDATE users SET password = '$new_password' WHERE username = '$username' AND id = '$id' AND user_type = '$user_type'";
+    $query = "UPDATE user SET password = '$new_password' WHERE Username = '$username' AND UserID = '$id' AND user_type = '$user_type'";
     $result = mysqli_query($db, $query);
     
     if ($result && mysqli_affected_rows($db) > 0) {

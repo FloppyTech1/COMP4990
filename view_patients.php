@@ -123,7 +123,7 @@ $mysqli_dw_db->close();
         <?php
         while ($pastPatientRow = $pastPatientsResult->fetch_assoc()) {
             echo '<div class="data-box">';
-            echo '<h4>' . $pastPatientRow['PatientName'] . '</h4>';
+            echo '<h4>' . $pastPatientRow['FullName'] . '</h4>';
             echo '<p>Disease: ' . $pastPatientRow['Disease'] . '</p>';
             echo '<p>Admission Date: ' . $pastPatientRow['AdmissionDate'] . '</p>';
             echo '<p>Discharge Date: ' . $pastPatientRow['DischargeDate'] . '</p>';

@@ -41,10 +41,22 @@ $result->close();
 
 $currentAppointmentsQuery = "SELECT Appointment.* FROM Appointment JOIN Treat ON Appointment.AppointmentID
 = Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
-
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $currentAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $pastAppointmentsQuery = "SELECT AppointmentDim.* FROM AppointmentDim JOIN TreatDim ON AppointmentDim.AppointmentID
 = TreatDim.AppointmentID WHERE TreatDim.DoctorID = $doctorID";
-
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $pastAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 $pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentsQuery);
 
@@ -90,6 +102,15 @@ $mysqli_dw_db->close();
 
     </nav>
 
+<br>
+    <form class="date-filter-form" method="post" action="">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" class="date-input">
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date" class="date-input">
+    <button type="submit" name="date_filter" class="filter-button">Filter</button>
+</form>
+
 <section>
     <h2>View Appointments</h2>
 
@@ -121,7 +142,6 @@ $mysqli_dw_db->close();
             echo '<h4>' . $pastAppointmentRow['Description'] . '</h4>';
             echo '<p>Date: ' . $pastAppointmentRow['AppointmentDate'] . '</p>';
             echo '<p>Status: ' . $pastAppointmentRow['Status'] . '</p>';
-            echo '<p>Patient: ' . $pastAppointmentRow['PatientName'] . '</p>';
             echo '<p>Room: ' . $pastAppointmentRow['Room'] . '</p>';
             echo '</div>';
         }

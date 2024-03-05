@@ -117,9 +117,8 @@ $mysqli_dw_db->close();
         <?php
         while ($pastTreatmentRow = $pastTreatmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
-            echo '<h4>Treatment for ' . $pastTreatmentRow['PatientName'] . '</h4>';
-            echo '<p>Patient ID: ' . $pastTreatmentRow['PatientID'] . '</p>';
-            echo '<p>Treatment: ' . $pastTreatmentRow['TreatmentDescription'] . '</p>';
+            echo '<h4>Patient ID: ' . $pastTreatmentRow['PatientID'] . '</h4>';
+            echo '<p>Treatment: ' . $pastTreatmentRow['Treatment'] . '</p>';
             echo '</div>';
         }
         ?>
