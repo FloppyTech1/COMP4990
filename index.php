@@ -27,14 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_id'] = $user['UserID'];
             $_SESSION['user_type'] = $user['user_type'];    
 
-            if ($input_user_type == 'Employee') {
-                header('Location: employee_dashboard.php');
-                exit();
-            } elseif ($input_user_type == 'Patient') {
+            if ($user['user_type'] == 'Employee') {
+              header('Location: employee_dashboard.php');
+            } elseif ($user['user_type'] == 'Patient') {
                 header('Location: patient_dashboard.php');
-                exit();
             }
-            exit(); 
+            exit();
         }
     }
 }

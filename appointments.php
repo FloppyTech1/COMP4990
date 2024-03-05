@@ -35,6 +35,13 @@ $patient_id = $_SESSION['user_id'];
 
 // Query to retrieve active appointments for the patient from second_db
 $currentAppointmentsQuery = "SELECT * FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
+if (isset($_POST['date_filter'])) {
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    if ($start_date && $end_date) {
+        $currentAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
+    }
+}
 $currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 
 $pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
@@ -81,6 +88,15 @@ $mysqli_dw_db->close();
         <a class="nav-link" href="logout.php">Logout <i class="material-icons">exit_to_app</i></a>
     </div>
 </nav>
+
+<br>
+<form class="date-filter-form" method="post" action="">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" class="date-input">
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date" class="date-input">
+    <button type="submit" name="date_filter" class="filter-button">Filter</button>
+</form>
 
 <section>
     <h2>Search Appointments</h2>

@@ -5,39 +5,55 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
 }
 
-$query = "SELECT DoctorName FROM Doctor WHERE doctorID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
+
+$query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
-    $doctorName = $row['DoctorName'];
+    $doctorName = $row['FullName'];
 } else {
     $doctorName = "Doctor Not Found";
 }
 
+$query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
+$result = $mysqli_main_db->query($query2);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $doctorID = $row['DoctorID'];
+} else {
+    $doctorID = "Doctor Not Found";
+}
+
 $result->close();
 
-$currentAppointmentsQuery = "SELECT Appointment.*, Patient.PatientName FROM Appointment 
-                             JOIN Patient ON Appointment.PatientID = Patient.PatientID 
-                             WHERE Appointment.DoctorID = {$_SESSION['user_id']}";
+$currentAppointmentsQuery = "SELECT Appointment.* FROM Appointment JOIN Treat ON Appointment.AppointmentID
+= Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
 
-$pastAppointmentsQuery = "SELECT AppointmentDim.*, PatientDim.PatientName FROM AppointmentDim 
-                          JOIN PatientDim ON AppointmentDim.PatientID = PatientDim.PatientID 
-                          WHERE AppointmentDim.DoctorID = {$_SESSION['user_id']}";
+$pastAppointmentsQuery = "SELECT AppointmentDim.* FROM AppointmentDim JOIN TreatDim ON AppointmentDim.AppointmentID
+= TreatDim.AppointmentID WHERE TreatDim.DoctorID = $doctorID";
 
-$currentAppointmentsResult = $mysqli->query($currentAppointmentsQuery);
-$pastAppointmentsResult = $mysqli->query($pastAppointmentsQuery);
+$currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
+$pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentsQuery);
 
 // Calculate the number of current and past appointments
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
 $numPastAppointments = $pastAppointmentsResult->num_rows;
 
-$mysqli->close();
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -91,7 +107,6 @@ $mysqli->close();
             echo '<h4>' . $currentAppointmentRow['Description'] . '</h4>';
             echo '<p>Date: ' . $currentAppointmentRow['AppointmentDate'] . '</p>';
             echo '<p>Status: ' . $currentAppointmentRow['Status'] . '</p>';
-            echo '<p>Patient: ' . $currentAppointmentRow['PatientName'] . '</p>';
             echo '<p>Room: ' . $currentAppointmentRow['Room'] . '</p>';
             echo '</div>';
         }

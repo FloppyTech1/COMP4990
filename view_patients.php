@@ -28,16 +28,29 @@ if ($result && $row = $result->fetch_assoc()) {
     $doctorName = "Doctor Not Found";
 }
 
+$query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
+$result = $mysqli_main_db->query($query2);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $doctorID = $row['DoctorID'];
+} else {
+    $doctorID = "Doctor Not Found";
+}
+
 $result->close();
 
 $currentPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionDate, P.DischargeDate
     FROM Patient P
     JOIN User U ON P.UserID = U.UserID
     JOIN Treat T ON P.PatientID = T.PatientID
-    WHERE T.DoctorID = {$_SESSION['user_id']}";
+    WHERE T.DoctorID = $doctorID";
 $currentPatientsResult = $mysqli_main_db->query($currentPatientsQuery);
 
-$pastPatientsQuery = "";
+$pastPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionDate, P.DischargeDate
+    FROM PatientDim P
+    JOIN UserDim U ON P.UserID = U.UserID
+    JOIN TreatDim T ON P.PatientID = T.PatientID
+    WHERE T.DoctorID = $doctorID";
 $pastPatientsResult = $mysqli_dw_db->query($pastPatientsQuery);
 
 $numCurrentPatients = $currentPatientsResult->num_rows;
@@ -95,7 +108,7 @@ $mysqli_dw_db->close();
                 <?php
         while ($currentPatientRow = $currentPatientsResult->fetch_assoc()) {
             echo '<div class="data-box">';
-            echo '<h4>' . $currentPatientRow['PatientName'] . '</h4>';
+            echo '<h4>' . $currentPatientRow['FullName'] . '</h4>';
             echo '<p>Patient ID: ' . $currentPatientRow['PatientID'] . '</p>';
             echo '<p>Disease: ' . $currentPatientRow['Disease'] . '</p>';
             echo '<p>Admission Date: ' . $currentPatientRow['AdmissionDate'] . '</p>';

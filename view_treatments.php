@@ -5,38 +5,58 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+// First Database Connection
+$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($mysqli_main_db->connect_error) {
+    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
 }
 
-$query = "SELECT DoctorName FROM Doctor WHERE doctorID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
+
+$query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
-    $doctorName = $row['DoctorName'];
+    $doctorName = $row['FullName'];
 } else {
     $doctorName = "Doctor Not Found";
 }
 
+$query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
+$result = $mysqli_main_db->query($query2);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $doctorID = $row['DoctorID'];
+} else {
+    $doctorID = "Doctor Not Found";
+}
+
 $result->close();
 
-$currentTreatmentsQuery = "SELECT Treat.*, Patient.PatientID, Patient.PatientName FROM Treat 
-                          JOIN Patient ON Treat.PatientID = Patient.PatientID
-                          WHERE Treat.DoctorID = " . $_SESSION['user_id'];
+$currentTreatmentsQuery = "SELECT T.PatientID, T.DoctorID, T.Treatment, T.Status, A.AppointmentDate
+FROM Treat T
+JOIN Appointment A ON T.AppointmentID = A.AppointmentID
+WHERE T.DoctorID = $doctorID";
 
-$pastTreatmentsQuery = "SELECT TreatmentFact.*, Patient.PatientID, Patient.PatientName FROM TreatmentFact 
-                       JOIN Patient ON TreatmentFact.PatientID = Patient.PatientID
-                       WHERE TreatmentFact.DoctorID = " . $_SESSION['user_id'];
+$pastTreatmentsQuery = "SELECT T.PatientID, T.DoctorID, T.Treatment, T.Status, A.AppointmentDate
+FROM TreatDim T
+JOIN AppointmentDim A ON T.AppointmentID = A.AppointmentID
+WHERE T.DoctorID = $doctorID";
 
-$currentTreatmentsResult = $mysqli->query($currentTreatmentsQuery);
-$pastTreatmentsResult = $mysqli->query($pastTreatmentsQuery);
+$currentTreatmentsResult = $mysqli_main_db->query($currentTreatmentsQuery);
+$pastTreatmentsResult = $mysqli_dw_db->query($pastTreatmentsQuery);
 
 $numCurrentTreatments = $currentTreatmentsResult->num_rows;
 $numPastTreatments = $pastTreatmentsResult->num_rows;
 
-$mysqli->close();
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -85,8 +105,7 @@ $mysqli->close();
         <?php
         while ($currentTreatmentRow = $currentTreatmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
-            echo '<h4>Treatment for ' . $currentTreatmentRow['PatientName'] . '</h4>';
-            echo '<p>Patient ID: ' . $currentTreatmentRow['PatientID'] . '</p>';
+            echo '<h3>Patient ID: ' . $currentTreatmentRow['PatientID'] . '</h3>';
             echo '<p>Treatment: ' . $currentTreatmentRow['Treatment'] . '</p>';
             echo '</div>';
         }
