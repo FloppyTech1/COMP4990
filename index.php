@@ -32,6 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } elseif ($user['user_type'] == 'Patient') {
                 header('Location: patient_dashboard.php');
             }
+              else if ($user['user_type'] == 'Admin') {
+                header('Location: admin_dashboard.php');
+            }
             exit();
         }
     }
@@ -158,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <select name="user_type">
         <option value="Employee">Employee</option>
         <option value="Patient">Patient</option>
+        <option value="Admin">Admin</option>
       </select>
       
       <input type="submit" value="Login" />
