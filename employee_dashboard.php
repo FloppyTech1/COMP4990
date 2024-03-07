@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Doctor') {
     header('Location: index.php'); 
     exit();
 }
@@ -38,7 +38,7 @@ $result->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="new.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <title>Employee Dashboard</title>
+    <title>Doctor Dashboard</title>
   </head>
   <body>
     <header>
@@ -73,7 +73,7 @@ $result->close();
                 JOIN User U ON P.UserID = U.UserID
                 JOIN Treat T ON P.PatientID = T.PatientID
                 WHERE T.DoctorID = $doctorID";
-            $patientResult = $mysqli->query($patientQuery);
+            $patientResult = executeSelectQuery($db_conn, $patientQuery);
 
             while ($patientRow = $patientResult->fetch_assoc()) {
                 echo '
@@ -98,7 +98,7 @@ $result->close();
       <div class="data-container"> <?php
         $appointmentQuery = "SELECT Appointment.* FROM Appointment JOIN Treat ON Appointment.AppointmentID
         = Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
-        $appointmentResult = $mysqli->query($appointmentQuery);
+        $appointmentResult = executeSelectQuery($db_conn, $appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
             echo '
@@ -124,7 +124,7 @@ $result->close();
             JOIN Appointment A ON T.AppointmentID = A.AppointmentID
             WHERE T.DoctorID = $doctorID";
             
-            $treatmentResult = $mysqli->query($treatmentQuery);
+            $treatmentResult = executeSelectQuery($db_conn, $treatmentQuery);
 
             while ($treatmentRow = $treatmentResult->fetch_assoc()) {
                 echo '
