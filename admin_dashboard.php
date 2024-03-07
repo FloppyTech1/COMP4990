@@ -3,9 +3,13 @@ session_start();
 
 // Check if the user is logged in and has admin privileges
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Admin') {
-    header('Location: login.php'); 
+    header('Location: index.php'); 
     exit();
 }
+
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 // Initialize variables
 $queryResult = null;
@@ -15,42 +19,33 @@ $queryError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sqlQuery = $_POST['sql_query'];
 
-    // Validate and execute the query
-    if (!empty($sqlQuery)) {
-        $mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+    $result = executeSelectQuery($db_conn, $sqlQuery);
 
-        if ($mysqli->connect_error) {
-            die("Connection failed: " . $mysqli->connect_error);
-        }
+    if ($result) {
+        // Check if the query is a SELECT query
+        if (strpos(strtoupper($sqlQuery), 'SELECT') !== false) {
+            // Query is a SELECT, fetch results
+            $queryResult = [];
 
-        $result = $mysqli->query($sqlQuery);
-
-        if ($result) {
-            // Check if the query is a SELECT query
-            if (strpos(strtoupper($sqlQuery), 'SELECT') !== false) {
-                // Query is a SELECT, fetch results
-                $queryResult = [];
-
-                while ($row = $result->fetch_assoc()) {
-                    $queryResult[] = $row;
-                }
-
-                // Free result set
-                $result->close();
-            } else {
-                // Query is not a SELECT, display success message
-                $queryResult = "Query executed successfully. Affected rows: " . $mysqli->affected_rows;
+            while ($row = $result->fetch_assoc()) {
+                $queryResult[] = $row;
             }
-        } else {
-            // Query execution failed
-            $queryError = "Error executing query: " . $mysqli->error;
-        }
 
-        $mysqli->close();
+            // Free result set
+            $result->close();
+        } else {
+            // Query is not a SELECT, display success message
+            $queryResult = "Query executed successfully. Affected rows: " . $db_conn->affected_rows;
+        }
     } else {
-        // Handle empty query case
-        $queryError = "Please enter a valid SQL query.";
+        // Query execution failed
+        $queryError = "Error executing query: " . $db_conn->error;
     }
+
+    $db_conn->close();
+} else {
+    // Handle empty query case
+    $queryError = "Please enter a valid SQL query.";
 }
 ?>
 

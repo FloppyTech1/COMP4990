@@ -1,26 +1,17 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
-    header('Location: login.php'); 
+    header('Location: index.php'); 
     exit();
 }
 
-// First Database Connection
-$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli_main_db->connect_error) {
-    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
-}
-
-// Second Database Connection
-$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
-
-if ($mysqli_dw_db->connect_error) {
-    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = $mysqli_main_db->query($query);
+$result = executeSelectQuery($db_conn, $query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorName = $row['FullName'];
@@ -29,7 +20,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 $query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
-$result = $mysqli_main_db->query($query2);
+$result = executeSelectQuery($db_conn, $query2);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorID = $row['DoctorID'];
@@ -44,20 +35,20 @@ $currentPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionD
     JOIN User U ON P.UserID = U.UserID
     JOIN Treat T ON P.PatientID = T.PatientID
     WHERE T.DoctorID = $doctorID";
-$currentPatientsResult = $mysqli_main_db->query($currentPatientsQuery);
+$currentPatientsResult = executeSelectQuery($db_conn, $currentPatientsQuery);
 
 $pastPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionDate, P.DischargeDate
     FROM PatientDim P
     JOIN UserDim U ON P.UserID = U.UserID
     JOIN TreatDim T ON P.PatientID = T.PatientID
     WHERE T.DoctorID = $doctorID";
-$pastPatientsResult = $mysqli_dw_db->query($pastPatientsQuery);
+$pastPatientsResult = executeSelectQuery($dw_conn, $pastPatientsQuery);
 
 $numCurrentPatients = $currentPatientsResult->num_rows;
 $numPastPatients = $pastPatientsResult->num_rows;
 
-$mysqli_main_db->close();
-$mysqli_dw_db->close();
+$db_conn->close();
+$dw_conn->close();
 ?>
 
 <!DOCTYPE html>

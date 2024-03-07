@@ -2,32 +2,22 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
 }
 
-// First Database Connection
-$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli_main_db->connect_error) {
-    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 // Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result_main_db = $mysqli_main_db->query($query_main_db);
+$result_main_db = executeSelectQuery($db_conn, $query_main_db);
 
 if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = $row_main_db['FullName'];
 } else {
     $patientName = "Patient Not Found";
-}
-
-// Second Database Connection
-$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
-
-if ($mysqli_dw_db->connect_error) {
-    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
@@ -42,9 +32,9 @@ if (isset($_POST['date_filter'])) {
         $currentAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
+$currentAppointmentsResult = executeSelectQuery($db_conn, $currentAppointmentsQuery);
 
-$pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
+$pastAppointmentsQuery = "SELECT * FROM AppointmentDim WHERE PatientID = $patient_id";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -52,14 +42,34 @@ if (isset($_POST['date_filter'])) {
         $pastAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentQuery);
+$pastAppointmentsResult = executeSelectQuery($dw_conn, $pastAppointmentsQuery);
 
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
 $numPastAppointments = $pastAppointmentsResult->num_rows;
 
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get appointment details from the form
+    $conn = $db_conn;
+    $appointmentDate = $_POST['appointment_date'];
+    $description = $_POST['description'];
+    $status = $_POST['status'];
+    $room = $_POST['room'];
+
+    // Get patient ID from session
+    $patientID = $_SESSION['user_id'];
+
+    // Create the appointment
+    if (createAppointment($conn, $patientID, $appointmentDate, $description, $status, $room)) {
+        echo "Appointment created successfully!";
+    } else {
+        echo "Failed to create appointment.";
+    }
+}
+
 // Close both connections when done
-$mysqli_main_db->close();
-$mysqli_dw_db->close();
+$db_conn->close();
+$dw_conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -148,6 +158,24 @@ $mysqli_dw_db->close();
     }
     ?>
 </div>
+</section>
+
+<br>
+<section>
+    <h2>Create Appointment</h2>
+    <div class="data-container">
+        <form method="post" action="">
+            <label for="appointment_date">Appointment Date:</label>
+            <input type="date" id="appointment_date" name="appointment_date" required>
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+            <label for="room">Room:</label>
+            <input type="text" id="room" name="room" required>
+            <button type="submit" name="create_appointment">Create Appointment</button>
+        </form>
+    </div>
 </section>
 
 <script>

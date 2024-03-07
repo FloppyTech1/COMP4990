@@ -1,16 +1,9 @@
 <?php
 session_start();
 
-$hostname = "localhost";  
-$username = "root";  
-$password = "MyNewPass";  
-$database_name = "main_db"; 
-
-$db = mysqli_connect($hostname, $username, $password, $database_name);
-
-if (!$db) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+//Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 $message = "";
 
@@ -21,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_password = $_POST['new_password'];
 
     $query = "UPDATE user SET password = '$new_password' WHERE Username = '$username' AND UserID = '$id' AND user_type = '$user_type'";
-    $result = mysqli_query($db, $query);
+    $result = executeSelectQuery($db_conn, $query);
     
-    if ($result && mysqli_affected_rows($db) > 0) {
+    if ($result && mysqli_affected_rows($db_conn) > 0) {
         $message = "Password updated successfully.";
     } else {
         $message = "Invalid username, id, or user type.";

@@ -2,20 +2,17 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
 }
 
-// First Database Connection
-$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli_main_db->connect_error) {
-    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 // Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result_main_db = $mysqli_main_db->query($query_main_db);
+$result_main_db = executeSelectQuery($db_conn, $query_main_db);
 
 if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = $row_main_db['FullName'];
@@ -23,28 +20,21 @@ if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
-// Second Database Connection
-$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
-
-if ($mysqli_dw_db->connect_error) {
-    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
-}
-
 // Get patient ID from the session
 $patient_id = $_SESSION['user_id'];
 
 $currentPrescriptionsQuery = "SELECT Prescription.* FROM Prescription WHERE Prescription.PatientID = $patient_id";
-$currentPrescriptionsResult = $mysqli_main_db->query($currentPrescriptionsQuery);
+$currentPrescriptionsResult = executeSelectQuery($db_conn, $currentPrescriptionsQuery);
 
 $pastPrescriptionsQuery = "SELECT PrescriptionDim.* FROM PrescriptionDim WHERE PrescriptionDim.PatientID = $patient_id";
-$pastPrescriptionsResult = $mysqli_dw_db->query($pastPrescriptionsQuery);
+$pastPrescriptionsResult = executeSelectQuery($dw_conn, $pastPrescriptionsQuery);
 
 // Calculate counts
 $numCurrentPrescriptions = $currentPrescriptionsResult->num_rows;
 $numPastPrescriptions = $pastPrescriptionsResult->num_rows;
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = $mysqli_main_db->query($query);
+$result = executeSelectQuery($db_conn, $query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $patientName = $row['FullName'];
@@ -52,8 +42,8 @@ if ($result && $row = $result->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
-$mysqli_main_db->close();
-$mysqli_dw_db->close();
+$db_conn->close();
+$dw_conn->close();
 ?>
 
 <!DOCTYPE html>

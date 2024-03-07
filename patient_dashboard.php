@@ -1,18 +1,17 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: login.php'); 
+    header('Location: index.php'); 
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+$result = executeSelectQuery($db_conn, $query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $patientName = $row['FullName'];
@@ -65,7 +64,7 @@ $result->close();
     <div class="data-container">
         <?php
         $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
-        $appointmentResult = $mysqli->query($appointmentQuery);
+        $appointmentResult = executeSelectQuery($db_conn, $appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -85,7 +84,7 @@ $result->close();
     <div class="data-container">
         <?php
         $treatmentQuery = "SELECT Treat.* FROM Treat WHERE PatientID = " . $_SESSION['user_id'];
-        $treatmentResult = $mysqli->query($treatmentQuery);
+        $treatmentResult = executeSelectQuery($db_conn, $treatmentQuery);
 
         while ($treatmentRow = $treatmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -105,7 +104,7 @@ $result->close();
     <div class="data-container">
         <?php
         $billingQuery = "SELECT * FROM Billing WHERE PatientID = " . $_SESSION['user_id'];
-        $billingResult = $mysqli->query($billingQuery);
+        $billingResult = executeSelectQuery($db_conn, $billingQuery);
 
         while ($billingRow = $billingResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -126,7 +125,7 @@ $result->close();
     <div class="data-container">
         <?php
         $prescriptionQuery = "SELECT * FROM Prescription WHERE PatientID = " . $_SESSION['user_id'];
-        $prescriptionResult = $mysqli->query($prescriptionQuery);
+        $prescriptionResult = executeSelectQuery($db_conn, $prescriptionQuery);
 
         while ($prescriptionRow = $prescriptionResult->fetch_assoc()) {
             echo '<div class="data-box">';

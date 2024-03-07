@@ -2,32 +2,22 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: login.php');
+    header('Location: index.php');
     exit();
 }
 
-// First Database Connection
-$mysqli_main_db = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli_main_db->connect_error) {
-    die("Connection to main_db failed: " . $mysqli_main_db->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 // Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result_main_db = $mysqli_main_db->query($query_main_db);
+$result_main_db = executeSelectQuery($db_conn, $query_main_db);
 
 if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = $row_main_db['FullName'];
 } else {
     $patientName = "Patient Not Found";
-}
-
-// Second Database Connection
-$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
-
-if ($mysqli_dw_db->connect_error) {
-    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
@@ -42,7 +32,7 @@ if (isset($_POST['date_filter'])) {
         $currentBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
+$currentBillsResult = executeSelectQuery($db_conn, $currentBillsQuery);
 
 // Query to retrieve past bills for the patient
 $pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
@@ -53,14 +43,14 @@ if (isset($_POST['date_filter'])) {
         $pastBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$pastBillsResult = $mysqli_dw_db->query($pastBillsQuery);
+$pastBillsResult = executeSelectQuery($dw_conn, $pastBillsQuery);
 
 // Calculate counts
 $numCurrentBills = $currentBillsResult->num_rows;
 $numPastBills = $pastBillsResult->num_rows;
 
-$mysqli_dw_db->close();
-$mysqli_main_db->close();
+$db_conn->close();
+$dw_conn->close();
 ?>
 
 <!DOCTYPE html>

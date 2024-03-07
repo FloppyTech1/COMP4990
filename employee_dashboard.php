@@ -1,18 +1,17 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
-    header('Location: logout.php'); 
+    header('Location: index.php'); 
     exit();
 }
 
-$mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// Includes
+require_once 'includes/config.php';
+require_once 'includes/common_functions.php';
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = $mysqli->query($query);
+$result = executeSelectQuery($db_conn, $query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorName = $row['FullName'];
@@ -21,7 +20,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 $query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
-$result = $mysqli->query($query2);
+$result = executeSelectQuery($db_conn, $query2);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorID = $row['DoctorID'];
