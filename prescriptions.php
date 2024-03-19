@@ -49,13 +49,22 @@ if ($mysqli_dw_db->connect_error) {
     die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
+$query = "SELECT PatientID FROM Patient JOIN User ON Patient.UserID = User.UserID WHERE User.UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $patientID = $row['PatientID'];
+} else {
+    $patientID = "Patient ID Not Found";
+}
+
 // Get patient ID from the session
 $patient_id = $_SESSION['user_id'];
 
-$currentPrescriptionsQuery = "SELECT Prescription.* FROM Prescription WHERE Prescription.PatientID = $patient_id";
+$currentPrescriptionsQuery = "SELECT Prescription.* FROM Prescription WHERE Prescription.PatientID = $patientID";
 $currentPrescriptionsResult = $mysqli_main_db->query($currentPrescriptionsQuery);
 
-$pastPrescriptionsQuery = "SELECT PrescriptionDim.* FROM PrescriptionDim WHERE PrescriptionDim.PatientID = $patient_id";
+$pastPrescriptionsQuery = "SELECT PrescriptionDim.* FROM PrescriptionDim WHERE PrescriptionDim.PatientID = $patientID";
 $pastPrescriptionsResult = $mysqli_dw_db->query($pastPrescriptionsQuery);
 
 // Calculate counts

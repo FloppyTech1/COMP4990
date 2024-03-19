@@ -47,9 +47,16 @@ if ($mysqli_dw_db->connect_error) {
     die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
-$patient_id = $_SESSION['user_id'];
+$query = "SELECT PatientID FROM Patient JOIN User ON Patient.UserID = User.UserID WHERE User.UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
 
-$currentAppointmentsQuery = "SELECT * FROM Appointment WHERE Status = 'Scheduled' AND PatientID = " . $_SESSION['user_id'];
+if ($result && $row = $result->fetch_assoc()) {
+    $patientID = $row['PatientID'];
+} else {
+    $patientID = "Patient ID Not Found";
+}
+
+$currentAppointmentsQuery = "SELECT * FROM Appointment WHERE Status = 'Scheduled' AND PatientID = $patientID";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -59,7 +66,7 @@ if (isset($_POST['date_filter'])) {
 }
 $currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 
-$pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE Status = 'Completed' AND PatientID = $patient_id";
+$pastAppointmentQuery = "SELECT * FROM AppointmentDim WHERE Status = 'Completed' AND PatientID = $patientID";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];

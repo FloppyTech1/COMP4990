@@ -41,6 +41,15 @@ if ($result && $row = $result->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
+$query = "SELECT PatientID FROM Patient JOIN User ON Patient.UserID = User.UserID WHERE User.UserID = " . $_SESSION['user_id'];
+$result = $mysqli->query($query);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $patientID = $row['PatientID'];
+} else {
+    $patientID = "Patient ID Not Found";
+}
+
 $result->close();
 ?>
 
@@ -85,7 +94,7 @@ $result->close();
     <h2>My Appointments</h2>
     <div class="data-container">
         <?php
-        $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE Status = 'Scheduled' AND PatientID = " . $_SESSION['user_id'];
+        $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE Status = 'Scheduled' AND PatientID = $patientID";
         $appointmentResult = $mysqli->query($appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
@@ -105,7 +114,7 @@ $result->close();
     <h2>My Treatments</h2>
     <div class="data-container">
         <?php
-        $treatmentQuery = "SELECT Treat.* FROM Treat WHERE Status = 'Active' AND PatientID = " . $_SESSION['user_id'];
+        $treatmentQuery = "SELECT Treat.* FROM Treat WHERE Status = 'Active' AND PatientID = $patientID";
         $treatmentResult = $mysqli->query($treatmentQuery);
 
         while ($treatmentRow = $treatmentResult->fetch_assoc()) {
@@ -125,7 +134,7 @@ $result->close();
     <h2>My Billing Information</h2>
     <div class="data-container">
         <?php
-        $billingQuery = "SELECT * FROM Billing WHERE PaymentStatus = 'Pending' AND PatientID = " . $_SESSION['user_id'];
+        $billingQuery = "SELECT * FROM Billing WHERE PaymentStatus = 'Pending' AND PatientID = $patientID";
         $billingResult = $mysqli->query($billingQuery);
 
         while ($billingRow = $billingResult->fetch_assoc()) {
@@ -146,7 +155,7 @@ $result->close();
     <h2>My Prescriptions</h2>
     <div class="data-container">
         <?php
-        $prescriptionQuery = "SELECT * FROM Prescription WHERE PatientID = " . $_SESSION['user_id'];
+        $prescriptionQuery = "SELECT * FROM Prescription WHERE PatientID = $patientID";
         $prescriptionResult = $mysqli->query($prescriptionQuery);
 
         while ($prescriptionRow = $prescriptionResult->fetch_assoc()) {

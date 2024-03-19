@@ -49,11 +49,17 @@ if ($mysqli_dw_db->connect_error) {
     die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
-// Get patient ID from the session
-$patient_id = $_SESSION['user_id'];
+$query = "SELECT PatientID FROM Patient JOIN User ON Patient.UserID = User.UserID WHERE User.UserID = " . $_SESSION['user_id'];
+$result = $mysqli_main_db->query($query);
+
+if ($result && $row = $result->fetch_assoc()) {
+    $patientID = $row['PatientID'];
+} else {
+    $patientID = "Patient ID Not Found";
+}
 
 // Query to retrieve active bills for the patient
-$currentBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patient_id AND PaymentStatus = 'Pending'";
+$currentBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patientID AND PaymentStatus = 'Pending'";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -64,7 +70,7 @@ if (isset($_POST['date_filter'])) {
 $currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
 
 // Query to retrieve past bills for the patient
-$pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
+$pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patientID AND PaymentStatus = 'Paid'";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
