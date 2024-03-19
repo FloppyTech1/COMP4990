@@ -1,0 +1,97 @@
+-- Inserting data into the Hospital table
+INSERT INTO Hospital (HospitalID, HospitalName, PatientCapacity) VALUES
+(2, 'London Campus', 600);
+
+-- Inserting data into the User table for doctors
+INSERT INTO User (UserID, FullName, Username, Password, user_type, PhoneNum, EmailAdd, DateOfBirth, Sex, DateCreated) VALUES
+(16, 'Dr. James Wilson', 'drjames', 'password', 'Doctor', '789-012-3456', 'drjames@example.com', '1978-08-12', 'M', NOW()),
+(17, 'Dr. Olivia Brown', 'drolivia', 'password', 'Doctor', '890-123-4567', 'drolivia@example.com', '1984-02-28', 'F', NOW()),
+(18, 'Dr. Benjamin Johnson', 'drbenjamin', 'password', 'Doctor', '901-234-5678', 'drbenjamin@example.com', '1973-06-20', 'M', NOW()),
+(19, 'Dr. Sophia Davis', 'drsophia', 'password', 'Doctor', '012-345-6789', 'drsophia@example.com', '1989-11-15', 'F', NOW()),
+(20, 'Dr. William Smith', 'drwilliam', 'password', 'Doctor', '123-456-7890', 'drwilliam@example.com', '1970-05-03', 'M', NOW());
+
+-- Inserting data into the User table for patients
+INSERT INTO User (UserID, FullName, Username, Password, user_type, PhoneNum, EmailAdd, DateOfBirth, Sex, DateCreated) VALUES
+(21, 'Ella Johnson', 'ella', 'password', 'Patient', '234-567-8901', 'ella@example.com', '1993-04-10', 'F', NOW()),
+(22, 'Noah Smith', 'noah', 'password', 'Patient', '345-678-9012', 'noah@example.com', '1986-09-22', 'M', NOW()),
+(23, 'Sophia Wilson', 'sophia', 'password', 'Patient', '456-789-0123', 'sophia@example.com', '1977-02-15', 'F', NOW()),
+(24, 'Oliver Davis', 'oliver', 'password', 'Patient', '567-890-1234', 'oliver@example.com', '1980-07-30', 'M', NOW()),
+(25, 'Amelia Brown', 'amelia', 'password', 'Patient', '678-901-2345', 'amelia@example.com', '1995-11-05', 'F', NOW()),
+(26, 'Mia Johnson', 'mia', 'password', 'Patient', '789-012-3456', 'mia@example.com', '1983-03-18', 'F', NOW()),
+(27, 'James Wilson', 'james', 'password', 'Patient', '890-123-4567', 'james@example.com', '1975-08-24', 'M', NOW()),
+(28, 'Ethan Davis', 'ethan', 'password', 'Patient', '901-234-5678', 'ethan@example.com', '1988-01-17', 'M', NOW()),
+(29, 'Ava Smith', 'ava', 'password', 'Patient', '012-345-6789', 'ava@example.com', '1972-06-09', 'F', NOW()),
+(30, 'William Johnson', 'william', 'password', 'Patient', '123-456-7890', 'william@example.com', '1990-10-28', 'M', NOW());
+
+-- Inserting data into the Doctor table
+INSERT INTO Doctor (DoctorID, UserID, DoctorSpecialization, HospitalID) VALUES
+(6, 16, 'Oncologist', 2),
+(7, 17, 'Neurologist', 2),
+(8, 18, 'Psychiatrist', 2),
+(9, 19, 'Urologist', 2),
+(10, 20, 'Endocrinologist', 2);
+
+-- Inserting data into the Patient table
+INSERT INTO Patient (PatientID, UserID, Disease, AdmissionDate, DischargeDate) VALUES
+(11, 21, 'Common Cold', '2024-01-02', '2024-01-07'),
+(12, 22, 'Influenza', '2024-02-17', '2024-02-24'),
+(13, 23, 'Asthma', '2024-03-12', '2024-03-17'),
+(14, 24, 'Diabetes', '2024-04-22', '2024-05-07'),
+(15, 25, 'Bronchitis', '2024-05-17', '2024-05-27'),
+(16, 26, 'Pneumonia', '2024-06-12', '2024-06-27'),
+(17, 27, 'Migraine', '2024-07-02', '2024-07-12'),
+(18, 28, 'Hypertension', '2024-08-07', '2024-08-22'),
+(19, 29, 'Allergy', '2024-09-17', '2024-09-27'),
+(20, 30, 'Arthritis', '2024-10-02', '2024-10-12');
+
+-- Inserting data into the Appointment table
+INSERT INTO Appointment (AppointmentID, PatientID, AppointmentDate, AppointmentType, Description, Status, Room) VALUES
+(11, 11, '2024-01-12', 'Consultation', 'Follow-up visit for common cold', 'Scheduled', 'Room 201'),
+(12, 12, '2024-02-27', 'Check-up', 'Routine check-up for influenza', 'Scheduled', 'Room 202'),
+(13, 13, '2024-03-22', 'Consultation', 'Follow-up visit for asthma', 'Scheduled', 'Room 203'),
+(14, 14, '2024-05-02', 'Treatment', 'Diabetes management session', 'Scheduled', 'Room 204'),
+(15, 15, '2024-05-22', 'Consultation', 'Follow-up visit for bronchitis', 'Scheduled', 'Room 205'),
+(16, 16, '2024-06-17', 'Check-up', 'Routine check-up for pneumonia', 'Scheduled', 'Room 206'),
+(17, 17, '2024-07-07', 'Consultation', 'Follow-up visit for migraine', 'Scheduled', 'Room 207'),
+(18, 18, '2024-08-12', 'Treatment', 'Hypertension management session', 'Scheduled', 'Room 208'),
+(19, 19, '2024-09-22', 'Check-up', 'Routine check-up for allergy', 'Scheduled', 'Room 209'),
+(20, 20, '2024-10-07', 'Consultation', 'Follow-up visit for arthritis', 'Scheduled', 'Room 210');
+
+-- Inserting data into the Treat table
+INSERT INTO Treat (PatientID, DoctorID, Treatment, Status, AppointmentID) VALUES
+(11, 6, 'Rest and fluids', 'Active', 11),
+(12, 7, 'Prescribed medication', 'Active', 12),
+(13, 8, 'Breathing exercises', 'Active', 13),
+(14, 9, 'Insulin therapy', 'Active', 14),
+(15, 10, 'Bronchodilators', 'Active', 15),
+(16, 6, 'Antibiotics', 'Active', 16),
+(17, 7, 'Pain management techniques', 'Active', 17),
+(18, 8, 'Diet and exercise plan', 'Active', 18),
+(19, 9, 'Allergy testing', 'Active', 19),
+(20, 10, 'Physical therapy', 'Active', 20);
+
+-- Inserting data into the Prescription table
+INSERT INTO Prescription (PrescriptionID, PrescriptionName, Dosage, Frequency, PatientID, DoctorID) VALUES
+(11, 'Antibiotics', '500 mg', 'Twice daily', 11, 6),
+(12, 'Antiviral medication', '75 mg', 'Once daily', 12, 7),
+(13, 'Inhaler', '2 puffs', 'As needed', 13, 8),
+(14, 'Insulin', '10 units', 'Before meals', 14, 9),
+(15, 'Bronchodilator', '1 capsule', 'Once daily', 15, 10),
+(16, 'Antibiotics', '250 mg', 'Three times daily', 16, 6),
+(17, 'Pain relievers', '500 mg', 'Every 4 hours', 17, 7),
+(18, 'Blood pressure medication', '20 mg', 'Once daily', 18, 8),
+(19, 'Antihistamines', '10 mg', 'Once daily', 19, 9),
+(20, 'Anti-inflammatory drugs', '200 mg', 'Twice daily', 20, 10);
+
+-- Inserting data into the Billing table
+INSERT INTO Billing (BillingID, Amount, DueDate, PaymentStatus, PatientID, DoctorID) VALUES
+(11, 110.00, '2024-01-22', 'Pending', 11, 6),
+(12, 85.00, '2024-02-29', 'Pending', 12, 7),
+(13, 60.00, '2024-03-24', 'Pending', 13, 8),
+(14, 220.00, '2024-05-04', 'Pending', 14, 9),
+(15, 100.00, '2024-05-29', 'Pending', 15, 10),
+(16, 130.00, '2024-06-21', 'Pending', 16, 6),
+(17, 90.00, '2024-07-12', 'Pending', 17, 7),
+(18, 160.00, '2024-08-17', 'Pending', 18, 8),
+(19, 70.00, '2024-09-27', 'Pending', 19, 9),
+(20, 110.00, '2024-10-17', 'Pending', 20, 10);
