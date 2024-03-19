@@ -1,0 +1,153 @@
+-- HospitalDim Table: holds info of hospitals
+CREATE TABLE HospitalDim (
+    HospitalDimID INT PRIMARY KEY,
+    HospitalName VARCHAR(255),
+    PatientsCapacity INT,
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- UserDim Table: Holds User data + Ages
+CREATE TABLE UserDim (
+    UserDimID INT PRIMARY KEY,
+    UserID INT,
+    FullName VARCHAR(255),      -- Name
+    Username VARCHAR(25),
+    Password VARCHAR(25),     -- Password
+    user_type VARCHAR(25),
+    PhoneNum VARCHAR(25),
+    EmailAdd VARCHAR(255),
+    DateOfBirth DATE,
+    Sex CHAR,
+    DateCreated DATETIME,
+    -- Additional --
+    UserAge INT,               -- Age of the user
+    AccountAge INT,           -- Age of the account
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Update for UserAge & AccountAge
+UPDATE UserDim 
+JOIN (
+    SELECT
+        UserID,
+        TIMESTAMPDIFF(YEAR, DateOfBirth, CURRENT_DATE()) AS UserAge,
+        TIMESTAMPDIFF(YEAR, DateCreated, CURRENT_DATE()) AS AccountAge
+    FROM
+        UserDim
+) AS temp ON UserDim.UserID = temp.UserID
+SET UserDim.UserAge = temp.UserAge,
+    UserDim.AccountAge = temp.AccountAge
+WHERE UserDim.UserDimID > 0;            -- MySQL Safemode
+
+-- DoctorDim Table:
+CREATE TABLE DoctorDim (
+    DoctorDimID INT PRIMARY KEY,
+    DoctorID INT,
+    UserID INT,
+    HospitalID INT,
+    DoctorSpecialization VARCHAR(255),
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PatientDim Table:
+CREATE TABLE PatientDim (
+    PatientDimID INT PRIMARY KEY,
+    PatientID INT,
+    UserID INT,
+    Disease VARCHAR(255),
+    AdmissionDate DATE NULL,     
+    DischargeDate DATE NULL,
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AppointmentDim Table:
+CREATE TABLE AppointmentDim (
+    AppointmentDimID INT PRIMARY KEY,
+    AppointmentID INT,
+    PatientID INT, 
+    AppointmentDate DATE,
+    AppointmentType VARCHAR(255),       
+    Description VARCHAR(255) NULL,           
+    Status VARCHAR(50),                 
+    Room VARCHAR(50),
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TreatDim Table: 
+CREATE TABLE TreatDim (
+    TreatDimID INT PRIMARY KEY,
+    PatientID INT,
+    DoctorID INT,
+    Treatment VARCHAR(255),     
+    Status VARCHAR (50),        
+    AppointmentID INT,
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BillingDim Table:
+CREATE TABLE BillingDim (
+    BillingDimID INT PRIMARY KEY,
+    BillingID INT,
+    PatientID INT,
+    DoctorID INT,
+    Amount REAL,
+    DueDate DATE,
+    PaymentStatus VARCHAR(20),
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PrescriptionDim Table:
+CREATE TABLE PrescriptionDim (
+    PrescriptionDimID INT PRIMARY KEY,
+    PrescriptionID INT,
+    PrescriptionName VARCHAR(255),
+    Dosage VARCHAR(50),
+    Frequency VARCHAR(50),
+    PatientID INT,
+    DoctorID INT,
+    ETLTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TreatFact Table: including Treat, Billing, and Prescription
+CREATE TABLE TreatFact (
+    FactID INT PRIMARY KEY,
+    UserDimID INT,
+    PatientDimID INT,
+    DoctorDimID INT,
+    AppointmentDimID INT,
+    BillingDimID INT,
+    PrescriptionDimID INT,
+    TreatDimID INT,                 -- Added
+
+    --
+
+    Disease VARCHAR(255),
+    Treatment VARCHAR(255),
+    Amount REAL,
+    PrescriptionName VARCHAR(255),
+    Dosage VARCHAR(50),
+    Frequency VARCHAR(50),
+
+    -- Additional --
+    TotalDaysAdmitted INT,       -- Calculated through Patient(DATEDIFF(Patient(DischargeDate), Patient(AdmissionDate)))
+    FOREIGN KEY (UserDimID) REFERENCES UserDim(UserDimID),
+    FOREIGN KEY (PatientDimID) REFERENCES PatientDim(PatientDimID),
+    FOREIGN KEY (DoctorDimID) REFERENCES DoctorDim(DoctorDimID),
+    FOREIGN KEY (AppointmentDimID) REFERENCES AppointmentDim(AppointmentDimID),
+    FOREIGN KEY (BillingDimID) REFERENCES BillingDim(BillingDimID),
+    FOREIGN KEY (PrescriptionDimID) REFERENCES PrescriptionDim(PrescriptionDimID),
+    FOREIGN KEY (TreatDimID) REFERENCES TreatDim(TreatDimID)
+);
+
+-- Update for TotalDaysAdmitted
+UPDATE TreatFact 
+JOIN (
+    SELECT
+        PatientDim.PatientID, DATEDIFF(DischargeDate, AdmissionDate) AS TotalDaysAdmitted
+    FROM 
+        PatientDim
+    JOIN
+        UserDim ON PatientDim.UserID = UserDim.UserID
+) AS temp ON TreatFact.PatientDimID = temp.PatientID
+SET TreatFact.TotalDaysAdmitted = temp.TotalDaysAdmitted
+WHERE TreatFact.FactID > 0;         -- MySQL Safemode
