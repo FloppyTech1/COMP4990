@@ -1,0 +1,104 @@
+- Hospital Table: Holds the hospital name and other related info
+CREATE TABLE Hospital (
+    HospitalID INT PRIMARY KEY,
+    HospitalName VARCHAR(255),
+    PatientCapacity INT
+);
+
+-- User Table: Name, password, username, etc -- ADMIN can also be added here
+-- PHP file will then each be assign to each user (i.e. patient.php, doctor.php, admin.php)
+    CREATE TABLE User (
+        UserID INT PRIMARY KEY,
+        FullName VARCHAR(255),      -- Name
+        Username VARCHAR(25),
+        Password VARCHAR(25),     -- Password
+        user_type VARCHAR(25),           -- Can be 'Employee', 'Patient', or 'Admin'
+        PhoneNum VARCHAR(25),
+        EmailAdd VARCHAR(255),
+        DateOfBirth DATE,
+        Sex CHAR,
+        DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP     -- Account creation timestamp
+    );
+
+-- Doctor Table: FK to User Table, Specialization that's it
+CREATE TABLE Doctor (
+    DoctorID INT PRIMARY KEY,
+    UserID INT,
+    DoctorSpecialization VARCHAR(255),
+    HospitalID INT,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (HospitalID) REFERENCES Hospital(HospitalID)
+);
+
+/* Meant for DoctorName, but remove as User already have name
+-- Add 'Dr. ' for Doctor (just for fun) *check if it work first though
+CREATE TRIGGER AddDrPrefix
+BEFORE INSERT ON Doctor
+FOR EACH ROW
+BEGIN
+    SET NEW.DoctorName = CONCAT('Dr. ', NEW.DoctorName);
+END;
+*/ 
+
+-- Patient Table: FK to User Table, disease, date, etc
+CREATE TABLE Patient (
+    PatientID INT PRIMARY KEY,
+    UserID INT,
+    Disease VARCHAR(255),
+    AdmissionDate DATE NULL,     -- For these 2, probably Patient & Doctor can edit? 
+    DischargeDate DATE NULL,
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+-- Appointment Table: Patient creates this, gives date, type of appointment, etc
+CREATE TABLE Appointment (
+    AppointmentID INT AUTO_INCREMENT PRIMARY KEY,  -- Make it auto-incrementing
+    PatientID INT, 
+    AppointmentDate DATE,
+    AppointmentType VARCHAR(255),
+    Description VARCHAR(255) NULL,
+    Status VARCHAR(50),
+    Room VARCHAR(50),
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID)
+);
+
+-- Treat Table: Doctor appoint Treatment to Patient based on Appointment
+CREATE TABLE Treat (
+    PatientID INT,
+    DoctorID INT,
+    Treatment VARCHAR(255),     -- Note on Treatment, can be anything, even small thing like common cold to satisfy Appointment
+    Status VARCHAR (50),        -- Added, i.e. Active, Done, Canceled
+    AppointmentID INT,
+    PRIMARY KEY (PatientID, DoctorID),
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID),
+    FOREIGN KEY (AppointmentID) REFERENCES Appointment(AppointmentID)       -- Added, as Treat won't be able to exist without Appointment --
+);
+
+-- Billing Table: Bills, amount needed to pay, etc
+CREATE TABLE Billing (
+    BillingID INT PRIMARY KEY,
+    Amount REAL,
+    DueDate DATE,
+    PaymentStatus VARCHAR(20),      -- Paid, Unpaid, Pending
+    PatientID INT,
+    DoctorID INT,                   -- Added DoctorID column
+    FOREIGN KEY (PatientID, DoctorID) REFERENCES Treat(PatientID, DoctorID),  -- Adjust the foreign key constraint
+    FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID),         -- Might be redundant
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID)       -- Might be redundant
+);
+
+-- NOTE: A Doctor can then assign themselves to Appointment, CREATE Treat then Prescription.
+
+-- Prescription Table: prescriptions stuff - *can have multiple per Treat
+CREATE TABLE Prescription (
+    PrescriptionID INT PRIMARY KEY,
+    PrescriptionName VARCHAR(255),
+    Dosage VARCHAR(50),
+    Frequency VARCHAR(50),
+    PatientID INT,
+    DoctorID INT,
+    FOREIGN KEY (PatientID, DoctorID) REFERENCES Treat(PatientID, DoctorID),
+    FOREIGN KEY (PatientID) REFERENCES Patient(PatientID),      -- Might be redundant
+    FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID)          -- Might be redundant
+);
