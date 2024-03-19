@@ -1,17 +1,46 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
-    header('Location: index.php'); 
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Doctor') {
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli_main_db = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli_main_db->connect_error) {
+        die("Connection failed: " . $mysqli_main_db->connect_error);
+    }
+
+    return $mysqli_main_db;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli_main_db = connectToDatabase($input_location);
+
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = executeSelectQuery($db_conn, $query);
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorName = $row['FullName'];
@@ -20,7 +49,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 $query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
-$result = executeSelectQuery($db_conn, $query2);
+$result = $mysqli_main_db->query($query2);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorID = $row['DoctorID'];
@@ -31,7 +60,7 @@ if ($result && $row = $result->fetch_assoc()) {
 $result->close();
 
 $currentAppointmentsQuery = "SELECT Appointment.* FROM Appointment JOIN Treat ON Appointment.AppointmentID
-= Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
+= Treat.AppointmentID WHERE Appointment.Status = 'Scheduled' AND Treat.DoctorID = $doctorID";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -40,7 +69,7 @@ if (isset($_POST['date_filter'])) {
     }
 }
 $pastAppointmentsQuery = "SELECT AppointmentDim.* FROM AppointmentDim JOIN TreatDim ON AppointmentDim.AppointmentID
-= TreatDim.AppointmentID WHERE TreatDim.DoctorID = $doctorID";
+= TreatDim.AppointmentID WHERE AppointmentDim.Status = 'Completed' AND TreatDim.DoctorID = $doctorID";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -48,15 +77,44 @@ if (isset($_POST['date_filter'])) {
         $pastAppointmentsQuery .= " AND AppointmentDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$currentAppointmentsResult = executeSelectQuery($db_conn, $currentAppointmentsQuery);
-$pastAppointmentsResult = executeSelectQuery($dw_conn, $pastAppointmentsQuery);
+$currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
+$pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentsQuery);
 
 // Calculate the number of current and past appointments
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
 $numPastAppointments = $pastAppointmentsResult->num_rows;
 
-$db_conn->close();
-$dw_conn->close();
+if (isset($_POST['create_appointment'])) {
+    $patientID = $_POST['patient_id'];
+    $appointmentDate = $_POST['appointment_date'];
+    $description = $mysqli_main_db->real_escape_string($_POST['description']);
+    $status = $mysqli_main_db->real_escape_string($_POST['status']);
+    $room = $mysqli_main_db->real_escape_string($_POST['room']);
+
+    $createAppointmentQuery = "INSERT INTO Appointment (PatientID, AppointmentDate, AppointmentType, Description, Status, Room) 
+    VALUES ('$patientID', '$appointmentDate', 'TypePlaceHolder', '$description', '$status', '$room')";
+    $createTreatQuery = "INSERT INTO Treat (PatientID, DoctorID, Treatment, Status, AppointmentID)
+    VALUES ('$patientID', '$doctorID', 'TypePlaceHolder', '$status', (SELECT AppointmentID FROM Appointment ORDER BY AppointmentID DESC LIMIT 1))";
+
+    if ($mysqli_main_db->query($createAppointmentQuery)) {
+        // The first query was successful, now execute the second one
+        if ($mysqli_main_db->query($createTreatQuery)) {
+            // Both queries were successful, redirect to appointments.php
+            header('Location: view_appointments.php');
+            exit();
+        } else {
+            // Second query failed
+            echo "Error creating treatment: " . $mysqli_main_db->error;
+        }
+    } else {
+        // First query failed
+        echo "Error creating appointment: " . $mysqli_main_db->error;
+    }
+}
+
+
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>
@@ -139,9 +197,35 @@ $dw_conn->close();
         ?>
     </div>
 </section>
+<br>
+<section class="appointment-form">
+    <h2>Create Appointment</h2>
+    <div class="data-container">
+    <form method="POST" action="view_appointments.php">
+        <label for="patient_id">Patient ID:</label><br>
+        <input type="text" id="patient_id" name="patient_id" required><br><br>
+
+        <label for="appointment_date">Appointment Date:</label><br>
+        <input type="date" id="appointment_date" name="appointment_date" required><br><br>
+        
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
+        
+        <label for="status">Status:</label><br>
+        <select id="status" name="status" required>
+            <option value="Scheduled">Scheduled</option>
+            <option value="Completed">Completed</option>
+        </select><br><br>
+        
+        <label for="room">Room:</label><br>
+        <input type="text" id="room" name="room" required><br><br>
+        
+        <input type="submit" name="create_appointment" value="Create Appointment">
+    </form>
+    </div>
+</section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

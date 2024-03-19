@@ -1,17 +1,39 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: index.php'); 
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+
+    return $mysqli;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli = connectToDatabase($input_location);
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = executeSelectQuery($db_conn, $query);
+$result = $mysqli->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $patientName = $row['FullName'];
@@ -63,8 +85,8 @@ $result->close();
     <h2>My Appointments</h2>
     <div class="data-container">
         <?php
-        $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE PatientID = " . $_SESSION['user_id'];
-        $appointmentResult = executeSelectQuery($db_conn, $appointmentQuery);
+        $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE Status = 'Scheduled' AND PatientID = " . $_SESSION['user_id'];
+        $appointmentResult = $mysqli->query($appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -83,8 +105,8 @@ $result->close();
     <h2>My Treatments</h2>
     <div class="data-container">
         <?php
-        $treatmentQuery = "SELECT Treat.* FROM Treat WHERE PatientID = " . $_SESSION['user_id'];
-        $treatmentResult = executeSelectQuery($db_conn, $treatmentQuery);
+        $treatmentQuery = "SELECT Treat.* FROM Treat WHERE Status = 'Active' AND PatientID = " . $_SESSION['user_id'];
+        $treatmentResult = $mysqli->query($treatmentQuery);
 
         while ($treatmentRow = $treatmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -103,8 +125,8 @@ $result->close();
     <h2>My Billing Information</h2>
     <div class="data-container">
         <?php
-        $billingQuery = "SELECT * FROM Billing WHERE PatientID = " . $_SESSION['user_id'];
-        $billingResult = executeSelectQuery($db_conn, $billingQuery);
+        $billingQuery = "SELECT * FROM Billing WHERE PaymentStatus = 'Pending' AND PatientID = " . $_SESSION['user_id'];
+        $billingResult = $mysqli->query($billingQuery);
 
         while ($billingRow = $billingResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -125,7 +147,7 @@ $result->close();
     <div class="data-container">
         <?php
         $prescriptionQuery = "SELECT * FROM Prescription WHERE PatientID = " . $_SESSION['user_id'];
-        $prescriptionResult = executeSelectQuery($db_conn, $prescriptionQuery);
+        $prescriptionResult = $mysqli->query($prescriptionQuery);
 
         while ($prescriptionRow = $prescriptionResult->fetch_assoc()) {
             echo '<div class="data-box">';

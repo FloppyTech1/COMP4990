@@ -1,17 +1,39 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Doctor') {
-    header('Location: index.php'); 
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+
+    return $mysqli;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli = connectToDatabase($input_location);
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = executeSelectQuery($db_conn, $query);
+$result = $mysqli->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorName = $row['FullName'];
@@ -20,7 +42,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 $query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
-$result = executeSelectQuery($db_conn, $query2);
+$result = $mysqli->query($query2);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorID = $row['DoctorID'];
@@ -38,7 +60,7 @@ $result->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="new.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <title>Doctor Dashboard</title>
+    <title>Employee Dashboard</title>
   </head>
   <body>
     <header>
@@ -50,7 +72,7 @@ $result->close();
           <i class="material-icons">person</i>
         </div>
         <div class="welcome-text">Welcome,</div>
-        <div class="welcome-text">Dr. <?php echo $doctorName; ?>! </div>
+        <div class="welcome-text"><?php echo $doctorName; ?>! </div>
       </div>
       <div class="nav-links">
         <a class="nav-link" href="employee_dashboard.php">Home <i class="material-icons">home</i>
@@ -73,7 +95,7 @@ $result->close();
                 JOIN User U ON P.UserID = U.UserID
                 JOIN Treat T ON P.PatientID = T.PatientID
                 WHERE T.DoctorID = $doctorID";
-            $patientResult = executeSelectQuery($db_conn, $patientQuery);
+            $patientResult = $mysqli->query($patientQuery);
 
             while ($patientRow = $patientResult->fetch_assoc()) {
                 echo '
@@ -98,7 +120,7 @@ $result->close();
       <div class="data-container"> <?php
         $appointmentQuery = "SELECT Appointment.* FROM Appointment JOIN Treat ON Appointment.AppointmentID
         = Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
-        $appointmentResult = executeSelectQuery($db_conn, $appointmentQuery);
+        $appointmentResult = $mysqli->query($appointmentQuery);
 
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
             echo '
@@ -124,7 +146,7 @@ $result->close();
             JOIN Appointment A ON T.AppointmentID = A.AppointmentID
             WHERE T.DoctorID = $doctorID";
             
-            $treatmentResult = executeSelectQuery($db_conn, $treatmentQuery);
+            $treatmentResult = $mysqli->query($treatmentQuery);
 
             while ($treatmentRow = $treatmentResult->fetch_assoc()) {
                 echo '

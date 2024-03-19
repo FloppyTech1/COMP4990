@@ -3,13 +3,9 @@ session_start();
 
 // Check if the user is logged in and has admin privileges
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Admin') {
-    header('Location: index.php'); 
+    header('Location: login.php'); 
     exit();
 }
-
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
 
 // Initialize variables
 $queryResult = null;
@@ -19,42 +15,50 @@ $queryError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sqlQuery = $_POST['sql_query'];
 
-    $result = executeSelectQuery($db_conn, $sqlQuery);
+    // Validate and execute the query
+    if (!empty($sqlQuery)) {
+        $mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
 
-    if ($result) {
-        // Check if the query is a SELECT query
-        if (strpos(strtoupper($sqlQuery), 'SELECT') !== false) {
-            // Query is a SELECT, fetch results
-            $queryResult = [];
-
-            while ($row = $result->fetch_assoc()) {
-                $queryResult[] = $row;
-            }
-
-            // Free result set
-            $result->close();
-        } else {
-            // Query is not a SELECT, display success message
-            $queryResult = "Query executed successfully. Affected rows: " . $db_conn->affected_rows;
+        if ($mysqli->connect_error) {
+            die("Connection failed: " . $mysqli->connect_error);
         }
-    } else {
-        // Query execution failed
-        $queryError = "Error executing query: " . $db_conn->error;
-    }
 
-    $db_conn->close();
-} else {
-    // Handle empty query case
-    $queryError = "Please enter a valid SQL query.";
+        $result = $mysqli->query($sqlQuery);
+
+        if ($result) {
+            // Check if the query is a SELECT query
+            if (strpos(strtoupper($sqlQuery), 'SELECT') !== false) {
+                // Query is a SELECT, fetch results
+                $queryResult = [];
+
+                while ($row = $result->fetch_assoc()) {
+                    $queryResult[] = $row;
+                }
+
+                // Free result set
+                $result->close();
+            } else {
+                // Query is not a SELECT, display success message
+                $queryResult = "Query executed successfully. Affected rows: " . $mysqli->affected_rows;
+            }
+        } else {
+            // Query execution failed
+            $queryError = "Error executing query: " . $mysqli->error;
+        }
+
+        $mysqli->close();
+    } else {
+        // Handle empty query case
+        $queryError = "Please enter a valid SQL query.";
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="stylesadmin.css">
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -68,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </header>
 
 <nav>
+    <a class="nav-link" href="admin_dashboard.php">Queries <i class="material-icons">search</i></a>
+    <a class="nav-link" href="analytics.php">Analytics <i class="material-icons">bar_chart</i></a>
     <a class="nav-link" href="logout.php">Logout <i class="material-icons">exit_to_app</i></a>
 </nav>
 

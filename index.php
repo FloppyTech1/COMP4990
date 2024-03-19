@@ -1,28 +1,48 @@
 <?php
 session_start();
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+    $mysqli = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+
+    return $mysqli;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $input_username = $_POST['username'];
     $input_password = $_POST['password'];
     $input_user_type = $_POST['user_type'];
+    $input_location = $_POST['location'];
+
+    $mysqli = connectToDatabase($input_location);
 
     $query = "SELECT * FROM User WHERE username = '$input_username' AND user_type = '$input_user_type'";
-    $result = executeSelectQuery($db_conn, $query);
+    $result = $mysqli->query($query);
 
-    if ($result && mysqli_num_rows($result) > 0) {
-        $user = mysqli_fetch_assoc($result);
+    if ($result && $result->num_rows > 0) {
+        $user = $result->fetch_assoc();
 
         if ($input_password == $user['Password']) {
             $_SESSION['user_id'] = $user['UserID'];
-            $_SESSION['user_type'] = $user['user_type'];    
+            $_SESSION['user_type'] = $user['user_type'];  
+            $_SESSION['location'] = $_POST['location'];  
 
             if ($user['user_type'] == 'Doctor') {
               header('Location: employee_dashboard.php');
@@ -34,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             exit();
         }
+    }
 }
 ?>
 
@@ -139,13 +160,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <div class="container">
   <div class="error-message">
       <?php
-      // Added part to check for passW not match
-      if ($_SERVER['REQUEST_METHOD'] == 'POST' && (empty($result) || mysqli_num_rows($result) == 0 || $input_password != $user['Password'])) {
+      if ($_SERVER['REQUEST_METHOD'] == 'POST' && (empty($result) || mysqli_num_rows($result) == 0)) {
           echo "Invalid username or password.";
       }
       ?>
     </div>
-    <h1>Elysian Medical Hospital</h1>
+    <h1>Elysian Medical Hospital Group</h1>
     <h2>Login Portal</h2>
     <form method="post" action="index.php">
       <label for="username">Username:</label>
@@ -156,9 +176,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       <label for="user_type">Login as:</label>
       <select name="user_type">
-        <option value="Employee">Employee</option>
+        <option value="Doctor">Doctor</option>
         <option value="Patient">Patient</option>
         <option value="Admin">Admin</option>
+      </select>
+
+      <label for="location">Location:</label>
+      <select name="location">
+        <option value="Windsor Campus">Windsor Campus</option>
+        <option value="London Campus">London Campus</option>
       </select>
       
       <input type="submit" value="Login" />

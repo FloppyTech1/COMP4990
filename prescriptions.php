@@ -1,18 +1,40 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: index.php');
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli_main_db = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli_main_db->connect_error) {
+        die("Connection failed: " . $mysqli_main_db->connect_error);
+    }
+
+    return $mysqli_main_db;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli_main_db = connectToDatabase($input_location);
 
 // Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result_main_db = executeSelectQuery($db_conn, $query_main_db);
+$result_main_db = $mysqli_main_db->query($query_main_db);
 
 if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = $row_main_db['FullName'];
@@ -20,21 +42,28 @@ if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
+
 // Get patient ID from the session
 $patient_id = $_SESSION['user_id'];
 
 $currentPrescriptionsQuery = "SELECT Prescription.* FROM Prescription WHERE Prescription.PatientID = $patient_id";
-$currentPrescriptionsResult = executeSelectQuery($db_conn, $currentPrescriptionsQuery);
+$currentPrescriptionsResult = $mysqli_main_db->query($currentPrescriptionsQuery);
 
 $pastPrescriptionsQuery = "SELECT PrescriptionDim.* FROM PrescriptionDim WHERE PrescriptionDim.PatientID = $patient_id";
-$pastPrescriptionsResult = executeSelectQuery($dw_conn, $pastPrescriptionsQuery);
+$pastPrescriptionsResult = $mysqli_dw_db->query($pastPrescriptionsQuery);
 
 // Calculate counts
 $numCurrentPrescriptions = $currentPrescriptionsResult->num_rows;
 $numPastPrescriptions = $pastPrescriptionsResult->num_rows;
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = executeSelectQuery($db_conn, $query);
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $patientName = $row['FullName'];
@@ -42,8 +71,8 @@ if ($result && $row = $result->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
-$db_conn->close();
-$dw_conn->close();
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>

@@ -1,26 +1,51 @@
 <?php
 session_start();
 
-//Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+
+    return $mysqli;
+}
 
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $input_location = $_POST['location']; // Retrieve the selected location from the form
+    $mysqli = connectToDatabase($input_location); // Connect to the appropriate database based on the location
+
     $username = $_POST['username'];
     $id = $_POST['id'];
     $user_type = $_POST['user_type'];
     $new_password = $_POST['new_password'];
 
-    $query = "UPDATE user SET password = '$new_password' WHERE Username = '$username' AND UserID = '$id' AND user_type = '$user_type'";
-    $result = executeSelectQuery($db_conn, $query);
-    
-    if ($result && mysqli_affected_rows($db_conn) > 0) {
+    $query = "UPDATE user SET password = ? WHERE Username = ? AND UserID = ? AND user_type = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("ssis", $new_password, $username, $id, $user_type);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
         $message = "Password updated successfully.";
     } else {
         $message = "Invalid username, id, or user type.";
-    }    
+    }
 }
 ?>
 
@@ -147,6 +172,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <select name="user_type">
         <option value="Employee">Employee</option>
         <option value="Patient">Patient</option>
+      </select><br />
+
+      <label for="location">Location:</label>
+      <select name="location">
+        <option value="Windsor Campus">Windsor Campus</option>
+        <option value="London Campus">London Campus</option>
       </select><br />
 
       <label for="new_password">New Password:</label>

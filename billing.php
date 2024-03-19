@@ -1,23 +1,52 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Patient') {
-    header('Location: index.php');
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli_main_db = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli_main_db->connect_error) {
+        die("Connection failed: " . $mysqli_main_db->connect_error);
+    }
+
+    return $mysqli_main_db;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli_main_db = connectToDatabase($input_location);
 
 // Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result_main_db = executeSelectQuery($db_conn, $query_main_db);
+$result_main_db = $mysqli_main_db->query($query_main_db);
 
 if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = $row_main_db['FullName'];
 } else {
     $patientName = "Patient Not Found";
+}
+
+// Second Database Connection
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
 }
 
 // Get patient ID from the session
@@ -32,7 +61,7 @@ if (isset($_POST['date_filter'])) {
         $currentBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$currentBillsResult = executeSelectQuery($db_conn, $currentBillsQuery);
+$currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
 
 // Query to retrieve past bills for the patient
 $pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patient_id AND PaymentStatus = 'Paid'";
@@ -43,14 +72,14 @@ if (isset($_POST['date_filter'])) {
         $pastBillsQuery .= " AND DueDate BETWEEN '$start_date' AND '$end_date'";
     }
 }
-$pastBillsResult = executeSelectQuery($dw_conn, $pastBillsQuery);
+$pastBillsResult = $mysqli_dw_db->query($pastBillsQuery);
 
 // Calculate counts
 $numCurrentBills = $currentBillsResult->num_rows;
 $numPastBills = $pastBillsResult->num_rows;
 
-$db_conn->close();
-$dw_conn->close();
+$mysqli_dw_db->close();
+$mysqli_main_db->close();
 ?>
 
 <!DOCTYPE html>

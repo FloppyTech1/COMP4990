@@ -1,17 +1,45 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Employee') {
-    header('Location: index.php'); 
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'Doctor') {
+    header('Location: logout.php'); 
     exit();
 }
 
-// Includes
-require_once 'includes/config.php';
-require_once 'includes/common_functions.php';
+function connectToDatabase($location) {
+    if ($location == 'Windsor Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main_db";
+    } elseif ($location == 'London Campus') {
+        $hostname = "localhost";
+        $username = "root";
+        $password = "MyNewPass";
+        $database_name = "main2_db";
+    } else {
+        die("Invalid location specified.");
+    }
+
+    $mysqli_main_db = new mysqli($hostname, $username, $password, $database_name);
+
+    if ($mysqli_main_db->connect_error) {
+        die("Connection failed: " . $mysqli_main_db->connect_error);
+    }
+
+    return $mysqli_main_db;
+}
+
+$input_location = $_SESSION['location'];
+$mysqli_main_db = connectToDatabase($input_location);
+
+$mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
+
+if ($mysqli_dw_db->connect_error) {
+    die("Connection to second_db failed: " . $mysqli_dw_db->connect_error);
+}
 
 $query = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
-$result = executeSelectQuery($db_conn, $query);
+$result = $mysqli_main_db->query($query);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorName = $row['FullName'];
@@ -20,7 +48,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 $query2 = "SELECT Doctor.DoctorID FROM Doctor JOIN User ON Doctor.UserID = User.UserID WHERE User.FullName = '$doctorName'";
-$result = executeSelectQuery($db_conn, $query2);
+$result = $mysqli_main_db->query($query2);
 
 if ($result && $row = $result->fetch_assoc()) {
     $doctorID = $row['DoctorID'];
@@ -35,20 +63,20 @@ $currentPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionD
     JOIN User U ON P.UserID = U.UserID
     JOIN Treat T ON P.PatientID = T.PatientID
     WHERE T.DoctorID = $doctorID";
-$currentPatientsResult = executeSelectQuery($db_conn, $currentPatientsQuery);
+$currentPatientsResult = $mysqli_main_db->query($currentPatientsQuery);
 
 $pastPatientsQuery = "SELECT P.PatientID, U.FullName, P.Disease, P.AdmissionDate, P.DischargeDate
     FROM PatientDim P
     JOIN UserDim U ON P.UserID = U.UserID
     JOIN TreatDim T ON P.PatientID = T.PatientID
     WHERE T.DoctorID = $doctorID";
-$pastPatientsResult = executeSelectQuery($dw_conn, $pastPatientsQuery);
+$pastPatientsResult = $mysqli_dw_db->query($pastPatientsQuery);
 
 $numCurrentPatients = $currentPatientsResult->num_rows;
 $numPastPatients = $pastPatientsResult->num_rows;
 
-$db_conn->close();
-$dw_conn->close();
+$mysqli_main_db->close();
+$mysqli_dw_db->close();
 ?>
 
 <!DOCTYPE html>

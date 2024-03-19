@@ -204,3 +204,40 @@ footer {
 .filter-button:hover {
   background-color: #2980b9;
 }
+
+.appointment-form form {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+}
+
+.appointment-form label {
+  font-weight: bold;
+}
+
+.appointment-form input[type="text"],
+.appointment-form input[type="date"],
+.appointment-form textarea,
+.appointment-form select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+.appointment-form input[type="submit"] {
+  width: auto;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.appointment-form input[type="submit"]:hover {
+  background-color: #45a049;
+}
