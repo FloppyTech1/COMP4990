@@ -32,7 +32,6 @@ function connectToDatabase($location) {
 $input_location = $_SESSION['location'];
 $mysqli_main_db = connectToDatabase($input_location);
 
-// Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
 $result_main_db = $mysqli_main_db->query($query_main_db);
 
@@ -42,7 +41,6 @@ if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
-// Second Database Connection
 $mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
 
 if ($mysqli_dw_db->connect_error) {
@@ -58,16 +56,12 @@ if ($result && $row = $result->fetch_assoc()) {
     $patientID = "Patient ID Not Found";
 }
 
-// Get patient ID from the session
-$patient_id = $_SESSION['user_id'];
-
 $currentPrescriptionsQuery = "SELECT Prescription.* FROM Prescription WHERE Prescription.PatientID = $patientID";
 $currentPrescriptionsResult = $mysqli_main_db->query($currentPrescriptionsQuery);
 
 $pastPrescriptionsQuery = "SELECT PrescriptionDim.* FROM PrescriptionDim WHERE PrescriptionDim.PatientID = $patientID";
 $pastPrescriptionsResult = $mysqli_dw_db->query($pastPrescriptionsQuery);
 
-// Calculate counts
 $numCurrentPrescriptions = $currentPrescriptionsResult->num_rows;
 $numPastPrescriptions = $pastPrescriptionsResult->num_rows;
 
@@ -105,12 +99,10 @@ $mysqli_dw_db->close();
         <div class="profile-icon"><i class="material-icons">person</i></div>
         <div class="welcome-text">Welcome,</div>
         <div class="dropdown">
-            <!-- Display patient name or any other relevant information -->
             <div class="welcome-text"><?php echo $patientName; ?>!</div>
         </div>
     </div>
     <div class="nav-links">
-        <!-- Add any relevant links for patient navigation -->
         <a class="nav-link" href="patient_dashboard.php">Home <i class="material-icons">home</i></a>
         <a class="nav-link" href="appointments.php">Appointments <i class="material-icons">date_range</i></a>
         <a class="nav-link" href="treatments.php">Treatments <i class="material-icons">vaccines</i></a>
@@ -123,12 +115,10 @@ $mysqli_dw_db->close();
 <section>
     <h2>Your Prescriptions</h2>
 
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search prescriptions...">
     </div>
 
-    <!-- Prescriptions -->
     <h2>Active Prescriptions</h2>
     <div class="data-container">
         <?php
@@ -139,7 +129,6 @@ $mysqli_dw_db->close();
                 echo '<p>Dosage: ' . $currentPrescriptionRow['Dosage'] . '</p>';
                 echo '<p>Frequency: ' . $currentPrescriptionRow['Frequency'] . '</p>';
                 echo '<p>Status: Active</p>';
-                // Add more details as needed
                 echo '</div>';
             }
         } else {
@@ -157,8 +146,6 @@ $mysqli_dw_db->close();
                 echo '<h4>' . $pastPrescriptionRow['PrescriptionName'] . '</h4>';
                 echo '<p>Dosage: ' . $pastPrescriptionRow['Dosage'] . '</p>';
                 echo '<p>Frequency: ' . $pastPrescriptionRow['Frequency'] . '</p>';
-                echo '<p>Status: Completed</p>';
-                // Add more details as needed
                 echo '</div>';
             }
         } else {
@@ -169,7 +156,6 @@ $mysqli_dw_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

@@ -32,7 +32,6 @@ function connectToDatabase($location) {
 $input_location = $_SESSION['location'];
 $mysqli_main_db = connectToDatabase($input_location);
 
-// Second Database Connection
 $mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
 
 if ($mysqli_dw_db->connect_error) {
@@ -80,7 +79,6 @@ if (isset($_POST['date_filter'])) {
 $currentAppointmentsResult = $mysqli_main_db->query($currentAppointmentsQuery);
 $pastAppointmentsResult = $mysqli_dw_db->query($pastAppointmentsQuery);
 
-// Calculate the number of current and past appointments
 $numCurrentAppointments = $currentAppointmentsResult->num_rows;
 $numPastAppointments = $pastAppointmentsResult->num_rows;
 
@@ -90,24 +88,21 @@ if (isset($_POST['create_appointment'])) {
     $description = $mysqli_main_db->real_escape_string($_POST['description']);
     $status = $mysqli_main_db->real_escape_string($_POST['status']);
     $room = $mysqli_main_db->real_escape_string($_POST['room']);
+    $appointmentType = $mysqli_main_db->real_escape_string($_POST['appointmentType']);
 
     $createAppointmentQuery = "INSERT INTO Appointment (PatientID, AppointmentDate, AppointmentType, Description, Status, Room) 
-    VALUES ('$patientID', '$appointmentDate', 'TypePlaceHolder', '$description', '$status', '$room')";
+    VALUES ('$patientID', '$appointmentDate', '$appointmentType', '$description', '$status', '$room')";
     $createTreatQuery = "INSERT INTO Treat (PatientID, DoctorID, Treatment, Status, AppointmentID)
-    VALUES ('$patientID', '$doctorID', 'TypePlaceHolder', '$status', (SELECT AppointmentID FROM Appointment ORDER BY AppointmentID DESC LIMIT 1))";
+    VALUES ('$patientID', '$doctorID', '$description', '$status', (SELECT AppointmentID FROM Appointment ORDER BY AppointmentID DESC LIMIT 1))";
 
     if ($mysqli_main_db->query($createAppointmentQuery)) {
-        // The first query was successful, now execute the second one
         if ($mysqli_main_db->query($createTreatQuery)) {
-            // Both queries were successful, redirect to appointments.php
             header('Location: view_appointments.php');
             exit();
         } else {
-            // Second query failed
             echo "Error creating treatment: " . $mysqli_main_db->error;
         }
     } else {
-        // First query failed
         echo "Error creating appointment: " . $mysqli_main_db->error;
     }
 }
@@ -163,15 +158,18 @@ $mysqli_dw_db->close();
 <section>
     <h2>View Appointments</h2>
 
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search appointments...">
     </div>
 
-    <!-- Appointments -->
     <h3>Current Appointments (<?php echo $numCurrentAppointments; ?>)</h3>
     <div class="data-container">
         <?php
+
+        if ($numCurrentAppointments == 0) {
+            echo '<p>No current appointments found.</p>';
+        }
+
         while ($currentAppointmentRow = $currentAppointmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>' . $currentAppointmentRow['Description'] . '</h4>';
@@ -186,6 +184,11 @@ $mysqli_dw_db->close();
     <h3>Past Appointments (<?php echo $numPastAppointments; ?>)</h3>
     <div class="data-container">
         <?php
+
+        if ($numPastAppointments == 0) {
+            echo '<p>No past appointments found.</p>';
+        }
+
         while ($pastAppointmentRow = $pastAppointmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>' . $pastAppointmentRow['Description'] . '</h4>';
@@ -215,6 +218,13 @@ $mysqli_dw_db->close();
         <select id="status" name="status" required>
             <option value="Scheduled">Scheduled</option>
             <option value="Completed">Completed</option>
+        </select><br><br>
+
+        <label for="appointmentType">Appointment Type:</label><br>
+        <select id="appointmentType" name="appointmentType" required>
+            <option value="Consultation">Consultation</option>
+            <option value="Checkup">Checkup</option>
+            <option value="Treatment">Treatment</option>
         </select><br><br>
         
         <label for="room">Room:</label><br>

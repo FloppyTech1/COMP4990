@@ -116,15 +116,16 @@ $mysqli_dw_db->close();
 <section>
     <h2>View Patients</h2>
 
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search patients...">
     </div>
 
-    <!-- Current Patients -->
     <h3>Current Patients (<?php echo $numCurrentPatients; ?>)</h3>
     <div class="data-container">
                 <?php
+        
+        if ($currentPatientsResult->num_rows === 0) { echo '<p>No patients found.</p>'; }
+
         while ($currentPatientRow = $currentPatientsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>' . $currentPatientRow['FullName'] . '</h4>';
@@ -136,10 +137,12 @@ $mysqli_dw_db->close();
         ?>
     </div>
 
-    <!-- Past Patients -->
     <h3>Past Patients (<?php echo $numPastPatients; ?>)</h3>
     <div class="data-container">
         <?php
+
+        if ($pastPatientsResult->num_rows === 0) { echo '<p>No past patients found.</p>'; }
+
         while ($pastPatientRow = $pastPatientsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>' . $pastPatientRow['FullName'] . '</h4>';
@@ -153,7 +156,6 @@ $mysqli_dw_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

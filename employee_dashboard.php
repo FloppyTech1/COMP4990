@@ -97,6 +97,8 @@ $result->close();
                 WHERE T.DoctorID = $doctorID";
             $patientResult = $mysqli->query($patientQuery);
 
+            if ($patientResult->num_rows === 0) { echo '<p>No patients found.</p>'; }
+            
             while ($patientRow = $patientResult->fetch_assoc()) {
                 echo '
 								<div class="data-box">';
@@ -122,17 +124,15 @@ $result->close();
         = Treat.AppointmentID WHERE Treat.DoctorID = $doctorID";
         $appointmentResult = $mysqli->query($appointmentQuery);
 
+        if ($appointmentResult->num_rows === 0) { echo '<p>No appointments found.</p>'; }
+
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
-            echo '
-								<div class="data-box">';
-            echo '
-									<h3>' . $appointmentRow['Description'] . '</h3>';
-            echo '
-									<p>Date: ' . $appointmentRow['AppointmentDate'] . '</p>';
-            echo '
-									<p>Status: ' . $appointmentRow['Status'] . '</p>';
-            echo '
-								</div>';
+            echo '<div class="data-box">';
+            echo '<h3>' . $appointmentRow['Description'] . '</h3>';
+            echo '<p>Date: ' . $appointmentRow['AppointmentDate'] . '</p>';
+            echo '<p>Status: ' . $appointmentRow['Status'] . '</p>';
+            echo '<p>Room: ' . $appointmentRow['Room'] . '</p>';
+            echo '</div>';
         }
 
         $appointmentResult->close();
@@ -147,6 +147,8 @@ $result->close();
             WHERE T.DoctorID = $doctorID";
             
             $treatmentResult = $mysqli->query($treatmentQuery);
+
+            if ($treatmentResult->num_rows === 0) { echo '<p>No treatments found.</p>'; }
 
             while ($treatmentRow = $treatmentResult->fetch_assoc()) {
                 echo '

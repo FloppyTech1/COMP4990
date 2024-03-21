@@ -32,7 +32,6 @@ function connectToDatabase($location) {
 $input_location = $_SESSION['location'];
 $mysqli_main_db = connectToDatabase($input_location);
 
-// Second Database Connection
 $mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
 
 if ($mysqli_dw_db->connect_error) {
@@ -123,6 +122,11 @@ $mysqli_dw_db->close();
     <h3>Current Treatments (<?php echo $numCurrentTreatments; ?>)</h3>
     <div class="data-container">
         <?php
+
+        if ($currentTreatmentsResult->num_rows === 0) {
+            echo '<p>No current treatments found.</p>';
+        }
+        
         while ($currentTreatmentRow = $currentTreatmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h3>Patient ID: ' . $currentTreatmentRow['PatientID'] . '</h3>';
@@ -136,6 +140,11 @@ $mysqli_dw_db->close();
     <h3>Past Treatments (<?php echo $numPastTreatments; ?>)</h3>
     <div class="data-container">
         <?php
+
+        if ($pastTreatmentsResult->num_rows === 0) {
+            echo '<p>No past treatments found.</p>';
+        }
+
         while ($pastTreatmentRow = $pastTreatmentsResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h4>Patient ID: ' . $pastTreatmentRow['PatientID'] . '</h4>';
@@ -148,7 +157,6 @@ $mysqli_dw_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

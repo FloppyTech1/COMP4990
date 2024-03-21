@@ -97,6 +97,10 @@ $result->close();
         $appointmentQuery = "SELECT Appointment.* FROM Appointment WHERE Status = 'Scheduled' AND PatientID = $patientID";
         $appointmentResult = $mysqli->query($appointmentQuery);
 
+        if ($appointmentResult->num_rows == 0) {
+            echo '<p>No appointments found.</p>';
+        }
+
         while ($appointmentRow = $appointmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h3>' . $appointmentRow['Description'] . '</h3>';
@@ -116,6 +120,10 @@ $result->close();
         <?php
         $treatmentQuery = "SELECT Treat.* FROM Treat WHERE Status = 'Active' AND PatientID = $patientID";
         $treatmentResult = $mysqli->query($treatmentQuery);
+        
+        if ($treatmentResult->num_rows == 0) {
+            echo '<p>No treatments found.</p>';
+        }
 
         while ($treatmentRow = $treatmentResult->fetch_assoc()) {
             echo '<div class="data-box">';
@@ -137,6 +145,10 @@ $result->close();
         $billingQuery = "SELECT * FROM Billing WHERE PaymentStatus = 'Pending' AND PatientID = $patientID";
         $billingResult = $mysqli->query($billingQuery);
 
+        if ($billingResult->num_rows == 0) {
+            echo '<p>No pending bills found.</p>';
+        }
+
         while ($billingRow = $billingResult->fetch_assoc()) {
             echo '<div class="data-box">';
             echo '<h3>Billing ID: ' . $billingRow['BillingID'] . '</h3>';
@@ -157,6 +169,10 @@ $result->close();
         <?php
         $prescriptionQuery = "SELECT * FROM Prescription WHERE PatientID = $patientID";
         $prescriptionResult = $mysqli->query($prescriptionQuery);
+        
+        if ($prescriptionResult->num_rows == 0) {
+            echo '<p>No prescriptions found.</p>';
+        }   
 
         while ($prescriptionRow = $prescriptionResult->fetch_assoc()) {
             echo '<div class="data-box">';

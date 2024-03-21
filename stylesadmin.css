@@ -32,7 +32,7 @@ nav i.material-icons {
 .nav-links {
   display: flex;
   gap: 20px;
-  justify-content: flex-end; /* Align links to the right */
+  justify-content: flex-end;
 }
 
 .nav-link {
@@ -51,14 +51,14 @@ h2 {
   color: #2c3e50;
   font-size: 24px;
   margin-bottom: 10px;
-  margin-left: 10px; /* Add margin to the left */
+  margin-left: 10px;
 }
 
 h3 {
   color: #2c3e50;
   font-size: 20px;
   margin-top: 20px;
-  margin-left: 10px; /* Add margin to the left */
+  margin-left: 10px;
 }
 
 .query-section {
@@ -124,7 +124,6 @@ header img {
   vertical-align: middle;
 }
 
-/* Additional Styles for Analytics Results */
 .data-container {
   margin-bottom: 30px;
 }
@@ -139,9 +138,9 @@ header img {
 
 .data-container table th,
 .data-container table td {
-  padding: 12px 15px; /* Adjust padding as needed */
+  padding: 12px 15px;
   border-bottom: 1px solid #ddd;
-  text-align: left; /* Ensure text alignment is consistent */
+  text-align: left;
 }
 
 .data-container table th {

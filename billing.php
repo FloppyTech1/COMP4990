@@ -32,7 +32,6 @@ function connectToDatabase($location) {
 $input_location = $_SESSION['location'];
 $mysqli_main_db = connectToDatabase($input_location);
 
-// Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
 $result_main_db = $mysqli_main_db->query($query_main_db);
 
@@ -42,7 +41,6 @@ if ($result_main_db && $row_main_db = $result_main_db->fetch_assoc()) {
     $patientName = "Patient Not Found";
 }
 
-// Second Database Connection
 $mysqli_dw_db = new mysqli("localhost", "root", "MyNewPass", "dw_db");
 
 if ($mysqli_dw_db->connect_error) {
@@ -58,7 +56,6 @@ if ($result && $row = $result->fetch_assoc()) {
     $patientID = "Patient ID Not Found";
 }
 
-// Query to retrieve active bills for the patient
 $currentBillsQuery = "SELECT * FROM Billing WHERE PatientID = $patientID AND PaymentStatus = 'Pending'";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
@@ -69,7 +66,6 @@ if (isset($_POST['date_filter'])) {
 }
 $currentBillsResult = $mysqli_main_db->query($currentBillsQuery);
 
-// Query to retrieve past bills for the patient
 $pastBillsQuery = "SELECT * FROM BillingDim WHERE PatientID = $patientID AND PaymentStatus = 'Paid'";
 if (isset($_POST['date_filter'])) {
     $start_date = $_POST['start_date'];
@@ -80,7 +76,6 @@ if (isset($_POST['date_filter'])) {
 }
 $pastBillsResult = $mysqli_dw_db->query($pastBillsQuery);
 
-// Calculate counts
 $numCurrentBills = $currentBillsResult->num_rows;
 $numPastBills = $pastBillsResult->num_rows;
 
@@ -109,12 +104,10 @@ $mysqli_main_db->close();
         <div class="profile-icon"><i class="material-icons">person</i></div>
         <div class="welcome-text">Welcome,</div>
         <div class="dropdown">
-            <!-- Display patient name or any other relevant information -->
             <div class="welcome-text"><?php echo $patientName; ?>!</div>
         </div>
     </div>
     <div class="nav-links">
-        <!-- Add any relevant links for patient navigation -->
         <a class="nav-link" href="patient_dashboard.php">Home <i class="material-icons">home</i></a>
         <a class="nav-link" href="appointments.php">Appointments <i class="material-icons">date_range</i></a>
         <a class="nav-link" href="treatments.php">Treatments <i class="material-icons">vaccines</i></a>
@@ -136,12 +129,10 @@ $mysqli_main_db->close();
 <section>
     <h2>Your Billing</h2>
 
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search bills...">
     </div>
 
-    <!-- Bills -->
     <h2>Active Bills</h2>
     <div class="data-container">
         <?php
@@ -151,8 +142,7 @@ $mysqli_main_db->close();
                 echo '<h4>Bill ID: ' . $currentBillRow['BillingID'] . '</h4>';
                 echo '<p>Amount: $' . $currentBillRow['Amount'] . '</p>';
                 echo '<p>Due Date: ' . $currentBillRow['DueDate'] . '</p>';
-                echo '<p>Status: Pending</p>';
-                // Add more details as needed
+                echo '<p>Status: ' . $currentBillRow['PaymentStatus'] . '</p>';
                 echo '</div>';
             }
         } else {
@@ -170,8 +160,7 @@ $mysqli_main_db->close();
                 echo '<h4>Bill ID: ' . $pastBillRow['BillingID'] . '</h4>';
                 echo '<p>Amount: $' . $pastBillRow['Amount'] . '</p>';
                 echo '<p>Due Date: ' . $pastBillRow['DueDate'] . '</p>';
-                echo '<p>Status: Paid</p>';
-                // Add more details as needed
+                echo '<p>Status: ' . $pastBillRow['PaymentStatus'] . '</p>';
                 echo '</div>';
             }
         } else {
@@ -182,7 +171,6 @@ $mysqli_main_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

@@ -128,12 +128,10 @@ $mysqli_dw_db->close();
 
 <section>
     <h2>Search Appointments</h2>
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search appointments...">
     </div>
 
-    <!-- Appointments -->
     <h2>Active Appointments</h2>
     <div class="data-container">
         <?php
@@ -172,7 +170,6 @@ $mysqli_dw_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');

@@ -28,9 +28,8 @@ function connectToDatabase($location) {
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $input_location = $_POST['location']; // Retrieve the selected location from the form
-    $mysqli = connectToDatabase($input_location); // Connect to the appropriate database based on the location
-
+    $input_location = $_POST['location'];
+    $mysqli = connectToDatabase($input_location); 
     $username = $_POST['username'];
     $id = $_POST['id'];
     $user_type = $_POST['user_type'];

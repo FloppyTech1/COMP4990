@@ -32,7 +32,6 @@ function connectToDatabase($location) {
 $input_location = $_SESSION['location'];
 $mysqli_main_db = connectToDatabase($input_location);
 
-// Query to retrieve patient name from the main_db
 $query_main_db = "SELECT FullName FROM User WHERE UserID = " . $_SESSION['user_id'];
 $result_main_db = $mysqli_main_db->query($query_main_db);
 
@@ -64,7 +63,6 @@ $currentTreatmentsResult = $mysqli_main_db->query($currentTreatmentsQuery);
 $pastTreatmentsQuery = "SELECT TreatDim.* FROM TreatDim WHERE TreatDim.Status = 'Inactive' AND TreatDim.PatientID = $patientID";
 $pastTreatmentsResult = $mysqli_dw_db->query($pastTreatmentsQuery);
 
-// Calculate counts
 $numCurrentTreatments = $currentTreatmentsResult->num_rows;
 $numPastTreatments = $pastTreatmentsResult->num_rows;
 
@@ -101,12 +99,10 @@ $mysqli_main_db->close();
         <div class="profile-icon"><i class="material-icons">person</i></div>
         <div class="welcome-text">Welcome,</div>
         <div class="dropdown">
-            <!-- Display patient name or any other relevant information -->
             <div class="welcome-text"><?php echo $patientName; ?>!</div>
         </div>
     </div>
     <div class="nav-links">
-        <!-- Add any relevant links for patient navigation -->
         <a class="nav-link" href="patient_dashboard.php">Home <i class="material-icons">home</i></a>
         <a class="nav-link" href="appointments.php">Appointments <i class="material-icons">date_range</i></a>
         <a class="nav-link" href="treatments.php">Treatments <i class="material-icons">vaccines</i></a>
@@ -119,12 +115,10 @@ $mysqli_main_db->close();
 <section>
     <h2>Search Treatments</h2>
 
-    <!-- Search or filter functionality -->
     <div class="search-container">
         <input type="text" id="searchBar" placeholder="Search treatments...">
     </div>
 
-    <!-- Treatments -->
     <h2>Active Treatments</h2>
     <div class="data-container">
         <?php
@@ -159,7 +153,6 @@ $mysqli_main_db->close();
 </section>
 
 <script>
-    // Add JavaScript for search functionality
     document.getElementById('searchBar').addEventListener('input', function () {
         var input, filter, containers, boxes, h4, i, txtValue;
         input = document.getElementById('searchBar');
