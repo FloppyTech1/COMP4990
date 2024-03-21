@@ -155,3 +155,24 @@ header img {
 .data-container table tr:hover {
   background-color: #e2e2e2;
 }
+
+.quick-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quick-actions button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.quick-actions button:hover {
+  background-color: #45a049;
+}

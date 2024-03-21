@@ -132,6 +132,7 @@ $result->close();
             echo '<p>Date: ' . $appointmentRow['AppointmentDate'] . '</p>';
             echo '<p>Status: ' . $appointmentRow['Status'] . '</p>';
             echo '<p>Room: ' . $appointmentRow['Room'] . '</p>';
+            echo '<p>Patient ID: ' . $appointmentRow['PatientID'] . '</p>';
             echo '</div>';
         }
 

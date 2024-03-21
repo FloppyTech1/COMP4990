@@ -95,7 +95,6 @@ $result_demographics_by_age = $mysqli_dw->query($query_demographics_by_age);
     <a class="nav-link" href="logout.php">Logout <i class="material-icons">exit_to_app</i></a>
 </nav>
 <section>
-    <h2>Appointment Trends</h2>
     <div class="data-container"> 
         <h3>Appointments by Type</h3>
         <?php

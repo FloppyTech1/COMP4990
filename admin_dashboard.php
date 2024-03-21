@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sqlQuery = $_POST['sql_query'];
 
     if (!empty($sqlQuery)) {
-        $mysqli = new mysqli("localhost", "root", "MyNewPass", "main_db");
+        $mysqli = new mysqli("localhost", "root", "MyNewPass", "dw_db");
 
         if ($mysqli->connect_error) {
             die("Connection failed: " . $mysqli->connect_error);
@@ -70,6 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <section>
     <div class="query-section">
         <h2>Admin Query</h2>
+        <div class="quick-actions">
+            <button onclick="executeQuickAction('SELECT * FROM UserDim')">View All Users</button>
+            <button onclick="executeQuickAction('SELECT * FROM HospitalDim')">View All Hospitals</button>
+            <button onclick="executeQuickAction('SELECT * FROM UserDim WHERE user_type = \'Doctor\'')">View All Doctors</button>
+            <button onclick="executeQuickAction('SELECT * FROM UserDim WHERE user_type = \'Patient\'')">View All Patients</button>
+            <button onclick="executeQuickAction('SELECT * FROM AppointmentDim')">View All Appointments</button>
+            <button onclick="executeQuickAction('SELECT * FROM BillingDim')">View All Billing Details</button>
+            <button onclick="executeQuickAction('SELECT * FROM PrescriptionDim')">View Prescriptions</button>
+            <button onclick="executeQuickAction('SELECT * FROM TreatDim')">View Treatments</button>
+        </div>
+        <br>
         <form method="post" action="admin_dashboard.php">
             <label for="sql_query">Enter SQL Query:</label>
             <textarea name="sql_query" rows="4" cols="50" required></textarea>
@@ -107,6 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ?>
     </div>
 </section>
+
+<script>
+    function executeQuickAction(sqlQuery) {
+        document.querySelector('textarea[name="sql_query"]').value = sqlQuery;
+        document.querySelector('form').submit();
+    }
+</script>
 
 </body>
 </html>

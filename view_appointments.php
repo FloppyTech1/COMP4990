@@ -176,6 +176,7 @@ $mysqli_dw_db->close();
             echo '<p>Date: ' . $currentAppointmentRow['AppointmentDate'] . '</p>';
             echo '<p>Status: ' . $currentAppointmentRow['Status'] . '</p>';
             echo '<p>Room: ' . $currentAppointmentRow['Room'] . '</p>';
+            echo '<p>Patient ID: ' . $currentAppointmentRow['PatientID'] . '</p>';
             echo '</div>';
         }
         ?>
@@ -195,6 +196,7 @@ $mysqli_dw_db->close();
             echo '<p>Date: ' . $pastAppointmentRow['AppointmentDate'] . '</p>';
             echo '<p>Status: ' . $pastAppointmentRow['Status'] . '</p>';
             echo '<p>Room: ' . $pastAppointmentRow['Room'] . '</p>';
+            echo '<p>Patient ID: ' . $pastAppointmentRow['PatientID'] . '</p>';
             echo '</div>';
         }
         ?>
