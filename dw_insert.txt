@@ -1,0 +1,186 @@
+-- Inserting data into HospitalDim
+INSERT INTO HospitalDim (HospitalDimID, HospitalName, PatientsCapacity) VALUES
+-- Insert data for the first hospital instance
+(1, 'Windsor Campus', 500),
+-- Insert data for the second hospital instance
+(2, 'London Campus', 600);
+
+-- Inserting data into UserDim for doctors
+INSERT INTO UserDim (UserDimID, UserID, FullName, Username, Password, user_type, PhoneNum, EmailAdd, DateOfBirth, Sex, DateCreated, UserAge, AccountAge) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 'Dr. John Smith', 'drjohn', 'password', 'Doctor', '123-456-7890', 'drjohn@example.com', '1980-05-15', 'M', NOW(), 44, 2),
+(2, 2, 'Dr. Emily Johnson', 'dremily', 'password', 'Doctor', '234-567-8901', 'dremily@example.com', '1985-09-22', 'F', NOW(), 39, 2),
+(3, 3, 'Dr. Michael Brown', 'drmichael', 'password', 'Doctor', '345-678-9012', 'drmichael@example.com', '1976-03-10', 'M', NOW(), 46, 2),
+(4, 4, 'Dr. Sarah Davis', 'drsarah', 'password', 'Doctor', '456-789-0123', 'drsarah@example.com', '1990-11-28', 'F', NOW(), 32, 2),
+(5, 5, 'Dr. David Wilson', 'drdavid', 'password', 'Doctor', '567-890-1234', 'drdavid@example.com', '1972-07-03', 'M', NOW(), 49, 2),
+-- Insert data for the second hospital instance
+(6, 16, 'Dr. James Wilson', 'drjames', 'password', 'Doctor', '789-012-3456', 'drjames@example.com', '1978-08-12', 'M', NOW(), 43, 2),
+(7, 17, 'Dr. Olivia Brown', 'drolivia', 'password', 'Doctor', '890-123-4567', 'drolivia@example.com', '1984-02-28', 'F', NOW(), 38, 2),
+(8, 18, 'Dr. Benjamin Johnson', 'drbenjamin', 'password', 'Doctor', '901-234-5678', 'drbenjamin@example.com', '1973-06-20', 'M', NOW(), 48, 2),
+(9, 19, 'Dr. Sophia Davis', 'drsophia', 'password', 'Doctor', '012-345-6789', 'drsophia@example.com', '1989-11-15', 'F', NOW(), 32, 2),
+(10, 20, 'Dr. William Smith', 'drwilliam', 'password', 'Doctor', '123-456-7890', 'drwilliam@example.com', '1970-05-03', 'M', NOW(), 54, 2);
+
+-- Inserting data into UserDim for patients
+INSERT INTO UserDim (UserDimID, UserID, FullName, Username, Password, user_type, PhoneNum, EmailAdd, DateOfBirth, Sex, DateCreated, UserAge, AccountAge) VALUES
+-- Insert data for the first hospital instance
+(11, 6, 'John Doe', 'john', 'password', 'Patient', '678-901-2345', 'john@example.com', '1992-01-20', 'M', NOW(), 32, 2),
+(12, 7, 'Jane Doe', 'jane', 'password', 'Patient', '789-012-3456', 'jane@example.com', '1988-07-12', 'F', NOW(), 36, 2),
+(13, 8, 'Alice Johnson', 'alice', 'password', 'Patient', '890-123-4567', 'alice@example.com', '1975-11-05', 'F', NOW(), 49, 2),
+(14, 9, 'Bob Smith', 'bob', 'password', 'Patient', '901-234-5678', 'bob@example.com', '1983-04-30', 'M', NOW(), 41, 2),
+(15, 10, 'Emily Wilson', 'emily', 'password', 'Patient', '012-345-6789', 'emily@example.com', '1996-08-17', 'F', NOW(), 28, 2),
+(16, 11, 'Mike Brown', 'mike', 'password', 'Patient', '123-456-7890', 'mike@example.com', '1982-02-14', 'M', NOW(), 42, 2),
+(17, 12, 'Sarah Davis', 'sarah', 'password', 'Patient', '234-567-8901', 'sarah@example.com', '1979-06-25', 'F', NOW(), 43, 2),
+(18, 13, 'David Wilson', 'david', 'password', 'Patient', '345-678-9012', 'david@example.com', '1990-12-08', 'M', NOW(), 31, 2),
+(19, 14, 'Anna Johnson', 'anna', 'password', 'Patient', '456-789-0123', 'anna@example.com', '1987-09-19', 'F', NOW(), 34, 2),
+(20, 15, 'Tom Smith', 'tom', 'password', 'Patient', '567-890-1234', 'tom@example.com', '1970-03-03', 'M', NOW(), 54, 2),
+-- Insert data for the second hospital instance
+(21, 21, 'Ella Johnson', 'ella', 'password', 'Patient', '234-567-8901', 'ella@example.com', '1993-04-10', 'F', NOW(), 28, 2),
+(22, 22, 'Noah Smith', 'noah', 'password', 'Patient', '345-678-9012', 'noah@example.com', '1986-09-22', 'M', NOW(), 35, 2),
+(23, 23, 'Sophia Wilson', 'sophia', 'password', 'Patient', '456-789-0123', 'sophia@example.com', '1977-02-15', 'F', NOW(), 45, 2),
+(24, 24, 'Oliver Davis', 'oliver', 'password', 'Patient', '567-890-1234', 'oliver@example.com', '1980-07-30', 'M', NOW(), 41, 2),
+(25, 25, 'Amelia Brown', 'amelia', 'password', 'Patient', '678-901-2345', 'amelia@example.com', '1995-11-05', 'F', NOW(), 26, 2),
+(26, 26, 'Mia Johnson', 'mia', 'password', 'Patient', '789-012-3456', 'mia@example.com', '1983-03-18', 'F', NOW(), 39, 2),
+(27, 27, 'James Wilson', 'james', 'password', 'Patient', '890-123-4567', 'james@example.com', '1975-08-24', 'M', NOW(), 46, 2),
+(28, 28, 'Ethan Davis', 'ethan', 'password', 'Patient', '901-234-5678', 'ethan@example.com', '1988-01-17', 'M', NOW(), 34, 2),
+(29, 29, 'Ava Smith', 'ava', 'password', 'Patient', '012-345-6789', 'ava@example.com', '1972-06-09', 'F', NOW(), 51, 2),
+(30, 30, 'William Johnson', 'william', 'password', 'Patient', '123-456-7890', 'william@example.com', '1990-10-28', 'M', NOW(), 33, 2);
+
+-- Inserting data into DoctorDim
+INSERT INTO DoctorDim (DoctorDimID, DoctorID, UserID, HospitalID, DoctorSpecialization) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 1, 1, 'Cardiologist'),
+(2, 2, 2, 1, 'Pediatrician'),
+(3, 3, 3, 1, 'Orthopedic Surgeon'),
+(4, 4, 4, 1, 'Obstetrician/Gynecologist'),
+(5, 5, 5, 1, 'Dermatologist'),
+-- Insert data for the second hospital instance
+(6, 6, 16, 2, 'Oncologist'),
+(7, 7, 17, 2, 'Neurologist'),
+(8, 8, 18, 2, 'Psychiatrist'),
+(9, 9, 19, 2, 'Urologist'),
+(10, 10, 20, 2, 'Endocrinologist');
+
+-- Inserting data into PatientDim
+INSERT INTO PatientDim (PatientDimID, PatientID, UserID, Disease, AdmissionDate, DischargeDate) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 6, 'Common Cold', '2024-01-01', '2024-01-05'),
+(2, 2, 7, 'Influenza', '2024-02-15', '2024-02-22'),
+(3, 3, 8, 'Asthma', '2024-03-10', '2024-03-15'),
+(4, 4, 9, 'Diabetes', '2024-04-20', '2024-05-05'),
+(5, 5, 10, 'Bronchitis', '2024-05-15', '2024-05-25'),
+(6, 6, 11, 'Pneumonia', '2024-06-10', '2024-06-25'),
+(7, 7, 12, 'Migraine', '2024-07-01', '2024-07-10'),
+(8, 8, 13, 'Hypertension', '2024-08-05', '2024-08-20'),
+(9, 9, 14, 'Allergy', '2024-09-15', '2024-09-25'),
+(10, 10, 15, 'Arthritis', '2024-10-01', '2024-10-10'),
+-- Insert data for the second hospital instance
+(11, 11, 21, 'Common Cold', '2024-01-02', '2024-01-07'),
+(12, 12, 22, 'Influenza', '2024-02-17', '2024-02-24'),
+(13, 13, 23, 'Asthma', '2024-03-12', '2024-03-17'),
+(14, 14, 24, 'Diabetes', '2024-04-22', '2024-05-07'),
+(15, 15, 25, 'Bronchitis', '2024-05-17', '2024-05-27'),
+(16, 16, 26, 'Pneumonia', '2024-06-12', '2024-06-27'),
+(17, 17, 27, 'Migraine', '2024-07-02', '2024-07-12'),
+(18, 18, 28, 'Hypertension', '2024-08-07', '2024-08-22'),
+(19, 19, 29, 'Allergy', '2024-09-17', '2024-09-27'),
+(20, 20, 30, 'Arthritis', '2024-10-02', '2024-10-12');
+
+-- Inserting data into AppointmentDim
+INSERT INTO AppointmentDim (AppointmentDimID, AppointmentID, PatientID, AppointmentDate, AppointmentType, Description, Status, Room) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 1, '2024-01-10', 'Consultation', 'Follow-up visit for common cold', 'Scheduled', 'Room 101'),
+(2, 2, 2, '2024-02-25', 'Check-up', 'Routine check-up for influenza', 'Scheduled', 'Room 102'),
+(3, 3, 3, '2024-03-20', 'Consultation', 'Follow-up visit for asthma', 'Scheduled', 'Room 103'),
+(4, 4, 4, '2024-04-30', 'Treatment', 'Diabetes management session', 'Scheduled', 'Room 104'),
+(5, 5, 5, '2024-05-20', 'Consultation', 'Follow-up visit for bronchitis', 'Scheduled', 'Room 105'),
+(6, 6, 6, '2024-06-15', 'Check-up', 'Routine check-up for pneumonia', 'Scheduled', 'Room 106'),
+(7, 7, 7, '2024-07-05', 'Consultation', 'Follow-up visit for migraine', 'Scheduled', 'Room 107'),
+(8, 8, 8, '2024-08-10', 'Treatment', 'Hypertension management session', 'Scheduled', 'Room 108'),
+(9, 9, 9, '2024-09-20', 'Check-up', 'Routine check-up for allergy', 'Scheduled', 'Room 109'),
+(10, 10, 10, '2024-10-05', 'Consultation', 'Follow-up visit for arthritis', 'Scheduled', 'Room 110'),
+-- Insert data for the second hospital instance
+(11, 11, 11, '2024-01-12', 'Consultation', 'Follow-up visit for common cold', 'Scheduled', 'Room 201'),
+(12, 12, 12, '2024-02-27', 'Check-up', 'Routine check-up for influenza', 'Scheduled', 'Room 202'),
+(13, 13, 13, '2024-03-22', 'Consultation', 'Follow-up visit for asthma', 'Scheduled', 'Room 203'),
+(14, 14, 14, '2024-05-02', 'Treatment', 'Diabetes management session', 'Scheduled', 'Room 204'),
+(15, 15, 15, '2024-05-22', 'Consultation', 'Follow-up visit for bronchitis', 'Scheduled', 'Room 205'),
+(16, 16, 16, '2024-06-17', 'Check-up', 'Routine check-up for pneumonia', 'Scheduled', 'Room 206'),
+(17, 17, 17, '2024-07-07', 'Consultation', 'Follow-up visit for migraine', 'Scheduled', 'Room 207'),
+(18, 18, 18, '2024-08-12', 'Treatment', 'Hypertension management session', 'Scheduled', 'Room 208'),
+(19, 19, 19, '2024-09-22', 'Check-up', 'Routine check-up for allergy', 'Scheduled', 'Room 209'),
+(20, 20, 20, '2024-10-07', 'Consultation', 'Follow-up visit for arthritis', 'Scheduled', 'Room 210');
+
+-- Inserting data into TreatDim
+INSERT INTO TreatDim (TreatDimID, PatientID, DoctorID, Treatment, Status, AppointmentID) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 1, 'Rest and fluids', 'Active', 1),
+(2, 2, 2, 'Prescribed medication', 'Active', 2),
+(3, 3, 3, 'Breathing exercises', 'Active', 3),
+(4, 4, 4, 'Insulin therapy', 'Active', 4),
+(5, 5, 5, 'Bronchodilators', 'Active', 5),
+(6, 6, 1, 'Antibiotics', 'Active', 6),
+(7, 7, 2, 'Pain management techniques', 'Active', 7),
+(8, 8, 3, 'Diet and exercise plan', 'Active', 8),
+(9, 9, 4, 'Allergy testing', 'Active', 9),
+(10, 10, 5, 'Physical therapy', 'Active', 10),
+-- Insert data for the second hospital instance
+(11, 11, 6, 'Rest and fluids', 'Active', 11),
+(12, 12, 7, 'Prescribed medication', 'Active', 12),
+(13, 13, 8, 'Breathing exercises', 'Active', 13),
+(14, 14, 9, 'Insulin therapy', 'Active', 14),
+(15, 15, 10, 'Bronchodilators', 'Active', 15),
+(16, 16, 6, 'Antibiotics', 'Active', 16),
+(17, 17, 7, 'Pain management techniques', 'Active', 17),
+(18, 18, 8, 'Diet and exercise plan', 'Active', 18),
+(19, 19, 9, 'Allergy testing', 'Active', 19),
+(20, 20, 10, 'Physical therapy', 'Active', 20);
+
+-- Inserting data into PrescriptionDim
+INSERT INTO PrescriptionDim (PrescriptionDimID, PrescriptionID, PrescriptionName, Dosage, Frequency, PatientID, DoctorID) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 'Antibiotics', '500 mg', 'Twice daily', 1, 1),
+(2, 2, 'Antiviral medication', '75 mg', 'Once daily', 2, 2),
+(3, 3, 'Inhaler', '2 puffs', 'As needed', 3, 3),
+(4, 4, 'Insulin', '10 units', 'Before meals', 4, 4),
+(5, 5, 'Bronchodilator', '1 capsule', 'Once daily', 5, 5),
+(6, 6, 'Antibiotics', '250 mg', 'Three times daily', 6, 1),
+(7, 7, 'Pain relievers', '500 mg', 'Every 4 hours', 7, 2),
+(8, 8, 'Blood pressure medication', '20 mg', 'Once daily', 8, 3),
+(9, 9, 'Antihistamines', '10 mg', 'Once daily', 9, 4),
+(10, 10, 'Anti-inflammatory drugs', '200 mg', 'Twice daily', 10, 5),
+-- Insert data for the second hospital instance
+(11, 11, 'Antibiotics', '500 mg', 'Twice daily', 11, 6),
+(12, 12, 'Antiviral medication', '75 mg', 'Once daily', 12, 7),
+(13, 13, 'Inhaler', '2 puffs', 'As needed', 13, 8),
+(14, 14, 'Insulin', '10 units', 'Before meals', 14, 9),
+(15, 15, 'Bronchodilator', '1 capsule', 'Once daily', 15, 10),
+(16, 16, 'Antibiotics', '250 mg', 'Three times daily', 16, 6),
+(17, 17, 'Pain relievers', '500 mg', 'Every 4 hours', 17, 7),
+(18, 18, 'Blood pressure medication', '20 mg', 'Once daily', 18, 8),
+(19, 19, 'Antihistamines', '10 mg', 'Once daily', 19, 9),
+(20, 20, 'Anti-inflammatory drugs', '200 mg', 'Twice daily', 20, 10);
+
+-- Inserting data into BillingDim
+INSERT INTO BillingDim (BillingDimID, BillingID, PatientID, DoctorID, Amount, DueDate, PaymentStatus) VALUES
+-- Insert data for the first hospital instance
+(1, 1, 1, 1, 100.00, '2024-01-20', 'Pending'),
+(2, 2, 2, 2, 75.00, '2024-02-29', 'Pending'),
+(3, 3, 3, 3, 50.00, '2024-03-25', 'Pending'),
+(4, 4, 4, 4, 200.00, '2024-05-05', 'Pending'),
+(5, 5, 5, 5, 90.00, '2024-05-30', 'Pending'),
+(6, 6, 6, 1, 120.00, '2024-06-20', 'Pending'),
+(7, 7, 7, 2, 80.00, '2024-07-10', 'Pending'),
+(8, 8, 8, 3, 150.00, '2024-08-15', 'Pending'),
+(9, 9, 9, 4, 60.00, '2024-09-25', 'Pending'),
+(10, 10, 5, 10, 100.00, '2024-10-15', 'Pending'),
+-- Insert data for the second hospital instance
+(11, 11, 11, 6, 110.00, '2024-01-22', 'Pending'),
+(12, 12, 12, 7, 85.00, '2024-02-29', 'Pending'),
+(13, 13, 13, 8, 60.00, '2024-03-24', 'Pending'),
+(14, 14, 14, 9, 220.00, '2024-05-04', 'Pending'),
+(15, 15, 15, 10, 100.00, '2024-05-29', 'Pending'),
+(16, 16, 16, 6, 130.00, '2024-06-21', 'Pending'),
+(17, 17, 17, 7, 90.00, '2024-07-12', 'Pending'),
+(18, 18, 18, 8, 160.00, '2024-08-17', 'Pending'),
+(19, 19, 19, 9, 70.00, '2024-09-27', 'Pending'),
+(20, 20, 20, 10, 110.00, '2024-10-17', 'Pending');
