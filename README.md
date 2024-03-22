@@ -255,6 +255,10 @@ login as three different roles (Admin, Doctor, Patient) and into two
 different campuses (Windsor, London). Below is login information for
 both campuses for each role.
 
+*Reset Password*: A user can reset their password by inputting valid
+information. This can be accessed from the index page, below the “Login”
+button, select “Forgot Password?”.
+
 **For Patient:**
 
 *Patient Dashboard:* A patient’s dashboard provides them with their
@@ -266,3 +270,43 @@ different pages (Home, Appointments, Treatments, Prescriptions,
 Billing). Aside from the dashboard, a patient can filter through his/her
 information by using a search bar or a date filter. These can both be
 found at the top of each page (excluding the dashboard).
+
+**For Doctor:**
+
+*Doctor Dashboard:* A doctor’s dashboard provides them with their
+current patients, and upcoming appointments and treatments.
+
+*Navigation and Functionality (Doctor):* A doctor has access to four
+different pages (Home, Patients, Appointments, Treatments). Excluding
+the dashboard, a doctor has the ability to filter through his patients,
+appointments, and treatments using a search bar and a date filter. These
+can be found at the top of each page.
+
+*Creating an appointment (Doctor):* A doctor can create an appointment
+for his patients using the form at the bottom of the appointments page.
+Once the form is filled out, the new appointment will appear on the
+appointments page. It is important to note that a doctor may only have a
+single appointment with a specific patient at a time but may have
+multiple appointments with different patients. It is also important to
+note that patients with the ID 1-10 are in source database 1 (Windsor
+Campus) and 11-20 are in source database 2 (London Campus). A doctor can
+only create an appointment with a patient from his campus. If an
+appointment is created that does not follow these restrictions, an error
+will occur.
+
+*Creating a prescription (Doctor):* A doctor can assign a prescription
+only to one of his current patients. You can view a doctor's current
+patients by navigating to the patients’ tabs. If these restrictions are
+not met, an error will occur. Once the form is filled out successfully,
+the prescription will be added to the patient’s dashboard.
+
+**For Admin:**
+
+*Admin Dashboard*: An admin has full control over the system. You can
+execute any query as an admin to change the database. An admin also has
+access to some quick actions like “View Users” which will automatically
+query the database and retrieve all users.
+
+*Analytics:* You can navigate to the analytics page by using the
+navigation menu. This page provides analytics of both the Windsor and
+London campuses. Scroll down to view all analytics.
