@@ -1,4 +1,4 @@
-- Hospital Table: Holds the hospital name and other related info
+-- Hospital Table: Holds the hospital name and other related info
 CREATE TABLE Hospital (
     HospitalID INT PRIMARY KEY,
     HospitalName VARCHAR(255),
